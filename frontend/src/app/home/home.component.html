@@ -1,9 +1,47 @@
-<div class="content-container">
-    <h1>Home</h1>
-</div>
-<div class="card-container">
-  <button class="card" [routerLink]="'/process'" routerLinkActive="active">Process Scheduling</button>
-  <button class="card" [routerLink]="'/deadlock'" routerLinkActive="active">Deadlock Detection</button>
-  <button class="card" [routerLink]="'/file'" routerLinkActive="active">File Management</button>
-  <button class="card" [routerLink]="'/disk'" routerLinkActive="active">Disk Scheduling</button>
+<div class="dashboard-container">
+  <h1>Operating System Core Visualizer</h1>
+  <p class="subtitle">
+    Interactive simulations of core operating system concepts
+  </p>
+
+  <div class="card-grid">
+    <div class="feature-card process">
+      <div class="card-header">Process Scheduling</div>
+      <div class="card-description">
+        Simulate CPU scheduling algorithms like FCFS, SJF, Round Robin, and Priority Scheduling with interactive Gantt charts.
+      </div>
+      <button [routerLink]="'/process'" class="open-btn">Open Simulator</button>
+    </div>
+
+    <div class="feature-card disk">
+      <div class="card-header">Disk Scheduling</div>
+      <div class="card-description">
+        Visualize disk scheduling algorithms including FCFS, SSTF, SCAN, and C-SCAN with animated seek operations.
+      </div>
+      <button [routerLink]="'/disk'" class="open-btn">Open Simulator</button>
+    </div>
+
+    <div class="feature-card memory">
+      <div class="card-header">Memory Management</div>
+      <div class="card-description">
+        Understand page replacement algorithms such as FIFO, LRU, and Optimal with step-by-step memory frame visualization.
+      </div>
+      <button [routerLink]="'/file'" class="open-btn">Open Simulator</button>
+    </div>
+
+    <div class="feature-card file">
+      <div class="card-header">File System & Deadlock</div>
+      <div class="card-description">
+        Explore file allocation methods and deadlock detection using Banker's Algorithm with resource allocation tables.
+      </div>
+      <button [routerLink]="'/deadlock'" class="open-btn">Open Simulator</button>
+    </div>
+  </div>
+
+  <div class="project-description">
+    <h3>About this Project</h3>
+    <p>
+      This web application simulates key Operating System concepts through an interactive interface. Each module provides visual representations of complex OS algorithms to help understand their behavior and performance. Select any simulator from the dashboard to get started.
+    </p>
+  </div>
 </div>

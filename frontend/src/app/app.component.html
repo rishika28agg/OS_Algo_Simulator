@@ -1,8 +1,13 @@
-<nav>
-  <ul class="navbar">
-    <li><a routerLink="/home" routerLinkActive="active">Home</a></li>
-    <li><a routerLink="/about" routerLinkActive="active">About Us</a></li>
-  </ul>
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="logo">OS Simulator</span>
+  </div>
+  <div class="nav-right">
+    <a routerLink="/home" routerLinkActive="active">Home</a>
+    <a routerLink="/process" routerLinkActive="active">Process Scheduling</a>
+    <a routerLink="/disk" routerLinkActive="active">Disk Scheduling</a>
+    <a routerLink="/file" routerLinkActive="active">Memory Management</a>
+    <a routerLink="/deadlock" routerLinkActive="active">File & Deadlock</a>
+  </div>
 </nav>
-
 <router-outlet></router-outlet>

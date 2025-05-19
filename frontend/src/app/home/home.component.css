@@ -1,47 +1,101 @@
-.content-container {
+.dashboard-container {
+  padding: 2rem;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 280px;
+  padding: 0;
+}
+
+.card-header {
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  text-align: left;
+}
+
+.process .card-header {
+  background-color: #7c3aed;
+}
+
+.disk .card-header {
+  background-color: #10b981;
+}
+
+.memory .card-header {
+  background-color: #f97316;
+}
+
+.file .card-header {
+  background-color: #22c55e;
+}
+
+.card-description {
+  padding: 1rem;
+  flex-grow: 1;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.open-btn {
+  background-color: #0f172a;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  width: 100%;
+  font-weight: bold;
+  cursor: pointer;
+  border-top: 1px solid #ddd;
+  transition: background-color 0.3s;
+}
+
+.open-btn:hover {
+  background-color: #1e293b;
+}
+
+.project-description {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: left;
+  max-width: 900px;
+  margin: 0 auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-right {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: flex-start;
-    padding-top: 2rem; /* space from the navbar */
   }
-  
-  h1 {
-    margin: 0;
-    font-size: 2rem;
+
+  .nav-right a {
+    margin: 0.5rem;
   }
-  
-  .card-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    padding: 2rem;
-    height: 80vh;
-    box-sizing: border-box;
-  }
-  
-  .card {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 35vh; /* Takes 40% of viewport height */
-    background-color: #f3f3f3;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-decoration: none;
-    color: #000;
-    transition: transform 0.2s, background-color 0.2s;
-  }
-  
-  .card:hover {
-    transform: scale(1.05);
-    background-color: #e0e0e0;
-    cursor: pointer;
-  }
-  .card.active {
-    background-color: #1976d2;
-    color: white;
-    transform: scale(1.02);
-  }
+}
