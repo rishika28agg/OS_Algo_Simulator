@@ -1,0 +1,69 @@
+<div class="content-container">
+  <h1>Disk Scheduling</h1>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+  <!-- Settings -->
+  <div class="card p-6 shadow-lg rounded-2xl">
+    <h2 class="text-xl font-bold mb-4">Algorithm Settings</h2>
+
+    <label class="block mb-3">
+      Algorithm
+      <select [(ngModel)]="algorithm" class="w-full mt-1 p-2 border rounded">
+        <option value="FCFS">First Come First Served (FCFS)</option>
+        <option value="SSTF">Shortest Seek Time First (SSTF)</option>
+        <option value="SCAN">SCAN</option>
+        <option value="C-SCAN">C-SCAN</option>
+      </select>
+    </label>
+
+    <label class="block mb-3">
+      Initial Head Position
+      <input type="number" [(ngModel)]="head" class="w-full mt-1 p-2 border rounded">
+    </label>
+
+    <label class="block mb-3">
+      Request Queue (space-separated)
+      <input type="text" [(ngModel)]="requests" class="w-full mt-1 p-2 border rounded">
+    </label>
+
+    <!-- Show for SCAN and C-SCAN -->
+    <div *ngIf="algorithm === 'SCAN' || algorithm === 'C-SCAN'">
+      <label class="block mb-3">
+        Disk Size
+        <input type="number" [(ngModel)]="diskSize" class="w-full mt-1 p-2 border rounded">
+      </label>
+    </div>
+
+    <!-- Direction only for SCAN -->
+    <div *ngIf="algorithm === 'SCAN'">
+      <label class="block mb-3">
+        Direction
+        <select [(ngModel)]="direction" class="w-full mt-1 p-2 border rounded">
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </label>
+    </div>
+
+    <button (click)="runSimulation()" class="w-full bg-blue-900 text-white py-2 mt-4 rounded hover:bg-blue-800">
+      Run Simulation
+    </button>
+  </div>
+
+  <!-- Result -->
+  <div class="card p-6 shadow-lg rounded-2xl">
+    <h2 class="text-xl font-bold mb-4">Head Movement</h2>
+    <div *ngIf="result.length === 0" class="text-gray-500">
+      No simulation run yet. Enter parameters and click "Run Simulation".
+    </div>
+    <div *ngIf="result.length > 0">
+      <p class="font-medium">Movement Order:</p>
+      <div class="mt-2 flex flex-wrap gap-2">
+        <span *ngFor="let r of result" class="result-bubble">
+         {{ r }}
+        </span>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+/* Navigation Bar */
+.navbar {
+    background-color: #1976d2;
+    padding: 1rem;
+    color: white;
+  }
+  .nav-container {
+    display: flex;
+    gap: 2rem;
+  }
+  .nav-link {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  /* Card Grid */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+  }
+  .card {
+    background-color: #e3f2fd;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  /* About Page */
+  .about-container {
+    padding: 2rem;
+  }

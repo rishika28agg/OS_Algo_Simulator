@@ -1,0 +1,45 @@
+<div class="content-container">
+  <h1>File Management</h1>
+</div>
+<div class="container">
+  <!-- Card 1: Algorithm Selection -->
+  <div class="card">
+    <h3>Select Algorithm</h3>
+    <select [(ngModel)]="selectedAlgo" (change)="selectAlgorithm()">
+      <option value="">Select an algorithm</option>
+      <option value="Contiguous Allocation">Contiguous Allocation</option>
+      <option value="FIFO Page Replacement">FIFO Page Replacement</option>
+      <option value="LRU Page Replacement">LRU Page Replacement</option>
+    </select>
+  </div>
+
+  <!-- Card 2: Fields Based on Selection -->
+  <div class="card" *ngIf="selectedAlgo === 'Contiguous Allocation'">
+    <h3>Contiguous Memory Allocation</h3>
+    <label>Total Memory: <input type="number" [(ngModel)]="totalMemoryInput"></label><br />
+    <label>Block Size: <input type="number" [(ngModel)]="blockSizeInput"></label><br />
+    <label>Process Name: <input type="text" [(ngModel)]="processName"></label><br />
+    <label>Process Size: <input type="number" [(ngModel)]="processSizeInput"></label><br />
+    <button (click)="allocateMemory()">Allocate</button>
+
+    <div class="memory-display">
+      <!-- This would need a corresponding memoryBlocks array in the component -->
+      <div class="block" *ngFor="let block of memoryBlocks" [ngClass]="{'used': block !== '', 'free': block === ''}">
+        {{ block || '-' }}
+      </div>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="selectedAlgo === 'FIFO Page Replacement' || selectedAlgo === 'LRU Page Replacement'">
+    <h3>{{ selectedAlgo }}</h3>
+    <label>Pages (space-separated): <input type="text" [(ngModel)]="pageInput"></label><br />
+    <label>Frames: <input type="number" [(ngModel)]="framesInput"></label><br />
+    <button (click)="simulatePageReplacement()">Simulate</button>
+
+    <div *ngFor="let step of resultLog">
+      <strong>Page {{ step.page }}:</strong> 
+      <span *ngFor="let frame of step.memory">[{{ frame === -1 ? '-' : frame }}]</span> 
+      - <span [style.color]="step.hit ? 'green' : 'red'">{{ step.hit ? 'HIT' : 'MISS' }}</span>
+    </div>
+  </div>
+</div>

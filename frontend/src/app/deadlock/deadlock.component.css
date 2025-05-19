@@ -1,0 +1,47 @@
+.content-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 2rem; /* space from the navbar */
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  margin: 0 8px;
+  padding: 8px;
+  width: 180px;
+}
+
+button {
+  padding: 8px 16px;
+  cursor: pointer;
+  background-color: #2a3f5f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #1e2e45;
+}
+
+.output-section {
+  margin-top: 25px;
+  padding: 10px;
+  border-top: 2px solid #ccc;
+}

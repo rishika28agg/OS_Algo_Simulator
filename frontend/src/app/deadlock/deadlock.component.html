@@ -1,0 +1,35 @@
+<div class="container">
+  <h2>Banker's Algorithm - Safe Sequence Checker</h2>
+
+  <div class="input-group">
+    <label>Total Resources:</label>
+    <input type="text" [(ngModel)]="totalResourcesInput" placeholder="e.g. 10 5 7" />
+    <button (click)="setTotalResources()">Set Resources</button>
+  </div>
+
+  <div class="input-group">
+    <label>Add Process:</label>
+    <input type="number" [(ngModel)]="pid" placeholder="Process ID" />
+    <input type="text" [(ngModel)]="maxResourcesInput" placeholder="e.g. 7 5 3" />
+    <button (click)="addProcess()">Add Process</button>
+  </div>
+
+  <div class="input-group">
+    <label>Request Resources:</label>
+    <input type="number" [(ngModel)]="requestPid" placeholder="Requesting PID" />
+    <input type="text" [(ngModel)]="requestInput" placeholder="e.g. 1 0 2" />
+    <button (click)="requestResources()">Request</button>
+  </div>
+
+  <div class="output-section">
+    <h3>Safe Sequence Output</h3>
+    <p>{{ safeSequenceMessage }}</p>
+  </div>
+
+  <div class="output-section">
+    <h3>Wait-For Graph Output</h3>
+    <div id="graph-output">
+      <!-- Graph will be visualized here -->
+    </div>
+  </div>
+</div>

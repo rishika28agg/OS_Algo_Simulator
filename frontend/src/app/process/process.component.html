@@ -1,0 +1,39 @@
+<div class="content-container">
+  <h1>Process Scheduling</h1>
+</div>
+<div class="container">
+  <h2>Visualize different CPU scheduling algorithms and analyze their performance</h2>
+
+  <div class="grid">
+    <!-- Algorithm Settings -->
+    <div class="card">
+      <h3>Algorithm Settings</h3>
+      <label>Scheduling Algorithm</label>
+  
+      <select [(ngModel)]="selectedAlgorithm">
+        <option *ngFor="let algo of algorithms" [value]="algo">{{ algo }}</option>
+      </select>
+      <button (click)="runSimulation()">Run Simulation</button>
+    </div>
+
+    <!-- Process List -->
+    <div class="card">
+      <h3>Process List</h3>
+      <div class="form-grid">
+        <input [(ngModel)]="process.id" placeholder="Process ID" />
+        <input type="number" [(ngModel)]="process.arrivalTime" placeholder="Arrival Time" />
+        <input type="number" [(ngModel)]="process.burstTime" placeholder="Burst Time" />
+        <input type="number" [(ngModel)]="process.priority" placeholder="Priority" />
+        <button (click)="addProcess()">Add Process</button>
+      </div>
+      <div *ngIf="processList.length === 0" class="no-data">
+        No processes added yet. Add processes to begin simulation.
+      </div>
+      <ul *ngIf="processList.length > 0">
+        <li *ngFor="let p of processList">
+          {{ p.id }} - Arrival: {{ p.arrivalTime }}, Burst: {{ p.burstTime }}, Priority: {{ p.priority }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
