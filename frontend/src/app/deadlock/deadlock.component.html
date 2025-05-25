@@ -3,33 +3,67 @@
 
   <div class="input-group">
     <label>Total Resources:</label>
-    <input type="text" [(ngModel)]="totalResourcesInput" placeholder="e.g. 10 5 7" />
-    <button (click)="setTotalResources()">Set Resources</button>
+    <input type="text" [(ngModel)]="totalInput" placeholder="e.g. 10 5 7" />
+    <button (click)="setResources()">Set Resources</button>
   </div>
 
   <div class="input-group">
-    <label>Add Process:</label>
-    <input type="number" [(ngModel)]="pid" placeholder="Process ID" />
-    <input type="text" [(ngModel)]="maxResourcesInput" placeholder="e.g. 7 5 3" />
+    <label>Max Demand:</label>
+    <input type="text" [(ngModel)]="maxDemandInput" placeholder="e.g. 7 5 3" />
+    <label>Allocated:</label>
+    <input type="text" [(ngModel)]="requestInput" placeholder="e.g. 0 1 0" />
     <button (click)="addProcess()">Add Process</button>
   </div>
 
-  <div class="input-group">
-    <label>Request Resources:</label>
-    <input type="number" [(ngModel)]="requestPid" placeholder="Requesting PID" />
-    <input type="text" [(ngModel)]="requestInput" placeholder="e.g. 1 0 2" />
-    <button (click)="requestResources()">Request</button>
+  <div class="output-section">
+    <h3>Processes Table</h3>
+    <table *ngIf="processes.length > 0">
+      <thead>
+        <tr>
+          <th>PID</th>
+          <th>Max Demand</th>
+          <th>Allocated</th>
+          <th>Need</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let process of processes">
+          <td>P{{ process.id }}</td>
+          <td>{{ process.maxDemand.join(' ') }}</td>
+          <td>{{ process.allocation.join(' ') }}</td>
+          <td>{{ getNeed(process) }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="processes.length === 0">No processes added yet.</p>
   </div>
 
   <div class="output-section">
     <h3>Safe Sequence Output</h3>
-    <p>{{ safeSequenceMessage }}</p>
+    <p *ngIf="safeSequence.length > 0">
+      Safe Sequence: {{ getSafeSequenceString() }}
+    </p>
+    <p *ngIf="processes.length > 0 && safeSequence.length === 0">
+      No safe sequence found. The system is in an unsafe state (potential deadlock).
+    </p>
+    <p *ngIf="processes.length === 0">
+      Set resources and add processes to calculate the safe sequence.
+    </p>
   </div>
 
   <div class="output-section">
     <h3>Wait-For Graph Output</h3>
-    <div id="graph-output">
-      <!-- Graph will be visualized here -->
-    </div>
+    <ul *ngIf="waitForGraph.length > 0">
+      <li *ngFor="let edge of waitForGraph">{{ edge }}</li>
+    </ul>
+    <p *ngIf="processes.length > 0 && safeSequence.length > 0">
+      System is in a safe state. No deadlock detected, hence no wait-for graph.
+    </p>
+    <p *ngIf="processes.length > 0 && safeSequence.length === 0 && waitForGraph.length === 0">
+        No wait-for graph edges could be identified for the current unsafe state. This might indicate independent waiting or a more complex deadlock.
+    </p>
+    <p *ngIf="processes.length === 0">
+      Add processes to generate the wait-for graph.
+    </p>
   </div>
 </div>
