@@ -1,39 +1,79 @@
-<div class="content-container">
-  <h1>Process Scheduling</h1>
-</div>
 <div class="container">
-  <h2>Visualize different CPU scheduling algorithms and analyze their performance</h2>
+  <h1>CPU Scheduling Simulator</h1>
 
-  <div class="grid">
-    <!-- Algorithm Settings -->
-    <div class="card">
-      <h3>Algorithm Settings</h3>
-      <label>Scheduling Algorithm</label>
-  
-      <select [(ngModel)]="selectedAlgorithm">
-        <option *ngFor="let algo of algorithms" [value]="algo">{{ algo }}</option>
-      </select>
-      <button (click)="runSimulation()">Run Simulation</button>
+  <div class="form-section">
+    <label>Algorithm:</label>
+    <select [(ngModel)]="selectedAlgorithm">
+      <option *ngFor="let algo of algorithms">{{ algo }}</option>
+    </select>
+
+    <div *ngIf="selectedAlgorithm === 'Round Robin (RR)'">
+      <label>Time Quantum:</label>
+      <input type="number" [(ngModel)]="timeQuantum" min="1" />
     </div>
 
-    <!-- Process List -->
-    <div class="card">
-      <h3>Process List</h3>
-      <div class="form-grid">
-        <input [(ngModel)]="process.id" placeholder="Process ID" />
-        <input type="number" [(ngModel)]="process.arrivalTime" placeholder="Arrival Time" />
-        <input type="number" [(ngModel)]="process.burstTime" placeholder="Burst Time" />
-        <input type="number" [(ngModel)]="process.priority" placeholder="Priority" />
-        <button (click)="addProcess()">Add Process</button>
+    <div class="input-group">
+      <input type="text" placeholder="Process ID" [(ngModel)]="process.id" />
+      <input type="number" placeholder="Arrival Time" [(ngModel)]="process.arrivalTime" />
+      <input type="number" placeholder="Burst Time" [(ngModel)]="process.burstTime" />
+      <input type="number" placeholder="Priority" [(ngModel)]="process.priority" />
+      <button (click)="addProcess()">Add Process</button>
+    </div>
+  </div>
+
+  <div class="process-table">
+    <h3>Process List</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Arrival Time</th>
+          <th>Burst Time</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of processList">
+          <td>{{ p.id }}</td>
+          <td>{{ p.arrivalTime }}</td>
+          <td>{{ p.burstTime }}</td>
+          <td>{{ p.priority }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button class="simulate-btn" (click)="runSimulation()">Run Simulation</button>
+
+  <div *ngIf="ganttChart.length > 0" class="results-section">
+    <h3>Gantt Chart</h3>
+    <div class="gantt-chart">
+      <div *ngFor="let block of ganttChart" class="gantt-block" [style.width.px]="(block.end - block.start) * 20">
+        <span>{{ block.id }}</span>
+        <div class="time-labels">
+          <span>{{ block.start }}</span>
+          <span>{{ block.end }}</span>
+        </div>
       </div>
-      <div *ngIf="processList.length === 0" class="no-data">
-        No processes added yet. Add processes to begin simulation.
-      </div>
-      <ul *ngIf="processList.length > 0">
-        <li *ngFor="let p of processList">
-          {{ p.id }} - Arrival: {{ p.arrivalTime }}, Burst: {{ p.burstTime }}, Priority: {{ p.priority }}
-        </li>
-      </ul>
+    </div>
+
+    <p>Average Waiting Time: {{ avgWT.toFixed(2) }}</p>
+    <p>Average Turnaround Time: {{ avgTAT.toFixed(2) }}</p>
+
+    <div class="calculation-details">
+        <h3>Calculation Steps</h3>
+        <h4>Overall Execution Flow:</h4>
+        <div class="calculation-log-container">
+            <p *ngFor="let step of overallCalculations">{{ step }}</p>
+        </div>
+        <h4>Waiting Time (WT) Calculation:</h4>
+        <div class="calculation-log-container">
+            <p *ngFor="let calc of waitingTimeCalculations">{{ calc }}</p>
+        </div>
+        <h4>Turnaround Time (TAT) Calculation:</h4>
+        <div class="calculation-log-container">
+            <p *ngFor="let calc of turnaroundTimeCalculations">{{ calc }}</p>
+        </div>
     </div>
   </div>
 </div>
