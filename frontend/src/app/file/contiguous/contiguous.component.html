@@ -1,0 +1,319 @@
+<div class="container">
+  <div class="section">
+    <h1>Contiguous Memory Allocation Simulator</h1>
+    
+    <!-- Educational Controls -->
+    <div class="educational-controls">
+      <button class="mode-btn" [class.active]="showTheoryPanel" (click)="toggleTheoryPanel()">
+        <fa-icon [icon]="icons.faBook"></fa-icon> Theory Panel
+      </button>
+      <button class="mode-btn" [class.active]="isQuizMode" (click)="toggleQuizMode()">
+        <fa-icon [icon]="icons.faQuestionCircle"></fa-icon> Quiz Mode
+      </button>
+    </div>
+
+    <!-- Theory Panel -->
+    <div class="theory-panel" *ngIf="showTheoryPanel">
+      <div class="theory-section">
+        <h3>{{ theoryContent.contiguous.title }}</h3>
+        <div class="theory-content" [innerHTML]="theoryContent.contiguous.content | nl2br"></div>
+      </div>
+      <div class="theory-section">
+        <h3>{{ theoryContent.fragmentation.title }}</h3>
+        <div class="theory-content" [innerHTML]="theoryContent.fragmentation.content | nl2br"></div>
+      </div>
+    </div>
+
+    <!-- Quiz Panel -->
+    <div class="quiz-panel" *ngIf="isQuizMode && !showQuizResults">
+      <div class="quiz-progress">
+        Question {{ getQuizProgress() }}
+      </div>
+
+      <div class="quiz-question" *ngIf="currentQuizQuestion">
+        <h3>{{ currentQuizQuestion.question }}</h3>
+        <div class="quiz-options">
+          <button 
+            *ngFor="let option of currentQuizQuestion.options; let i = index"
+            class="quiz-option"
+            [class.selected]="quizAnswer === i"
+            [class.correct]="showQuizExplanation && i === currentQuizQuestion.correctAnswer"
+            [class.incorrect]="showQuizExplanation && quizAnswer === i && i !== currentQuizQuestion.correctAnswer"
+            (click)="submitQuizAnswer(i)"
+            [disabled]="showQuizExplanation">
+            {{ option }}
+          </button>
+        </div>
+
+        <div class="quiz-explanation" *ngIf="showQuizExplanation">
+          <h4>Explanation:</h4>
+          <p>{{ currentQuizQuestion.explanation }}</p>
+          <button class="next-btn" (click)="nextQuizQuestion()">
+            {{ currentQuestionIndex < QUESTIONS_PER_QUIZ - 1 ? 'Next Question' : 'View Results' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Results -->
+    <div class="quiz-results" *ngIf="showQuizResults">
+      <h3>Quiz Results</h3>
+      <div class="score-card">
+        <div class="score">Score: {{ getQuizScore() }}</div>
+        <button class="restart-btn" (click)="restartQuiz()">
+          <fa-icon [icon]="icons.faRedo"></fa-icon>
+          Restart Quiz
+        </button>
+      </div>
+
+      <div class="results-breakdown">
+        <h4>Question Breakdown:</h4>
+        <div class="result-item" *ngFor="let result of quizResults">
+          <div class="result-header">
+            <fa-icon 
+              [icon]="result.correct ? icons.faCheckCircle : icons.faTimesCircle"
+              [class.correct]="result.correct"
+              [class.incorrect]="!result.correct">
+            </fa-icon>
+            <span class="question-text">{{ result.question }}</span>
+          </div>
+          <div class="result-details">
+            <p>Your answer: {{ result.userAnswer }}</p>
+            <p>Correct answer: {{ result.correctAnswer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory Configuration -->
+    <div class="memory-info">
+      <div class="info-item">
+        <span>Memory Status:</span>
+        <span [ngClass]="{'text-green-500': isInitialized, 'text-red-500': !isInitialized}">
+          {{ isInitialized ? 'Initialized' : 'Not Initialized' }}
+        </span>
+      </div>
+      <div class="info-item">
+        <span>Memory Utilization:</span>
+        <span>{{ memoryUtilization.toFixed(1) }}%</span>
+      </div>
+      <div class="info-item">
+        <span>Total Free Memory:</span>
+        <span>{{ totalFreeMemory }} units</span>
+      </div>
+      <div class="info-item">
+        <span>Largest Free Block:</span>
+        <span>{{ largestFreeBlock }} units</span>
+      </div>
+    </div>
+
+    <!-- Memory Initialization -->
+    <div class="section" *ngIf="!isInitialized">
+      <h2>Initialize Memory</h2>
+      <div class="input-group">
+        <div class="form-field">
+          <label for="totalMemory">Total Memory Size (units):</label>
+          <input id="totalMemory" [(ngModel)]="totalMemory" type="number" min="1" placeholder="Enter total memory size">
+        </div>
+        <button (click)="initializeMemory()" [disabled]="totalMemory <= 0">
+          Initialize Memory
+        </button>
+      </div>
+    </div>
+
+    <!-- Memory Management -->
+    <div class="section" *ngIf="isInitialized">
+      <!-- Block Management -->
+      <div class="block-management">
+        <h2>Memory Block Management</h2>
+        <div class="input-group">
+          <div class="form-field">
+            <label for="newBlockSize">New Block Size (units):</label>
+            <input id="newBlockSize" [(ngModel)]="newBlockSize" type="number" min="1" placeholder="Enter block size">
+          </div>
+          <button (click)="addBlock()" [disabled]="newBlockSize <= 0">
+            Add Block
+          </button>
+        </div>
+        <div class="blocks-list" *ngIf="memory.length > 0">
+          <h3>Current Blocks</h3>
+          <div class="blocks-grid">
+            <div *ngFor="let block of memory" class="block-item">
+              <div class="block-header">
+                <span>Block {{ block.id }}</span>
+                <button class="remove-btn" (click)="removeBlock(block.id)" [disabled]="!block.isFree">
+                  Remove
+                </button>
+              </div>
+              <div class="block-details">
+                <span>Size: {{ block.size }} units</span>
+                <span [ngClass]="{'text-green-500': block.isFree, 'text-red-500': !block.isFree}">
+                  {{ block.isFree ? 'Free' : 'Allocated' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Allocation Strategy -->
+      <div class="strategy-selector">
+        <h2>Allocation Strategy</h2>
+        <div class="input-group">
+          <select [(ngModel)]="fitType" [disabled]="!isInitialized">
+            <option value="first">First Fit</option>
+            <option value="best">Best Fit</option>
+            <option value="worst">Worst Fit</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Process Allocation -->
+      <div class="process-allocation">
+        <h2>Allocate New Process</h2>
+        <div class="input-group">
+          <div class="form-field">
+            <label for="processName">Process Name:</label>
+            <input id="processName" [(ngModel)]="newProcess.name" placeholder="Enter process name">
+          </div>
+          <div class="form-field">
+            <label for="processSize">Memory Required (units):</label>
+            <input id="processSize" [(ngModel)]="newProcess.size" type="number" min="1" placeholder="Enter size">
+          </div>
+          <button (click)="allocateProcess()" [disabled]="!newProcess.name || newProcess.size <= 0">
+            Allocate Process
+          </button>
+        </div>
+      </div>
+
+      <!-- Process History -->
+      <div class="process-history" *ngIf="activeProcesses.length > 0 || failedProcesses.length > 0">
+        <h2>Process History</h2>
+        
+        <!-- Active Processes -->
+        <div class="process-section" *ngIf="activeProcesses.length > 0">
+          <h3>Active Processes</h3>
+          <div class="processes-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Process Name</th>
+                  <th>Requested Size</th>
+                  <th>Allocated Blocks</th>
+                  <th>Internal Fragmentation</th>
+                  <th>Start Block</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let name of activeProcesses">
+                  <td>
+                    <div class="process-name" [style.background-color]="getProcessColor(name)">
+                      {{ name }}
+                    </div>
+                  </td>
+                  <td>{{ processInfo[name].requested }} units</td>
+                  <td>{{ processInfo[name].allocated }} blocks</td>
+                  <td>{{ processInfo[name].internal }} units</td>
+                  <td>{{ processInfo[name].startBlock }}</td>
+                  <td>
+                    <span class="status-badge allocated">Allocated</span>
+                  </td>
+                  <td>{{ getProcessTimestamp(name) }}</td>
+                  <td>
+                    <button class="deallocate-btn" (click)="deallocateProcess(name)">
+                      Deallocate
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Failed Processes -->
+        <div class="process-section" *ngIf="failedProcesses.length > 0">
+          <h3>Failed Processes</h3>
+          <div class="processes-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Process Name</th>
+                  <th>Requested Size</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let name of failedProcesses">
+                  <td>
+                    <div class="process-name" [style.background-color]="getProcessColor(name)">
+                      {{ name }}
+                    </div>
+                  </td>
+                  <td>{{ processInfo[name].requested }} units</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="processInfo[name].failureReason">
+                      {{ getProcessStatus(name) }}
+                    </span>
+                  </td>
+                  <td>{{ getProcessTimestamp(name) }}</td>
+                  <td>
+                    <button class="retry-btn" 
+                            (click)="retryAllocation(name)"
+                            [disabled]="!canRetryAllocation(name)">
+                      Retry Allocation
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory Visualization -->
+      <div class="memory-visualization">
+        <h2>Memory Layout</h2>
+        <div class="memory-layout">
+          <div class="memory-blocks">
+            <div *ngFor="let block of memory" 
+                 class="memory-block"
+                 [style.background-color]="block.process ? getProcessColor(block.process) : '#E2E8F0'"
+                 [ngClass]="{'free': block.isFree}"
+                 [style.flex]="block.size">
+              <div class="block-label">{{ block.process || 'Free' }}</div>
+              <div class="block-size">Block {{ block.id }} ({{ block.size }} units)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fragmentation Report -->
+      <div class="fragmentation-report">
+        <h2>Fragmentation Analysis</h2>
+        <div class="memory-stats">
+          <div class="stat-item">
+            <span>Internal Fragmentation:</span>
+            <span>{{ internalFragmentation }} units</span>
+          </div>
+          <div class="stat-item">
+            <span>External Fragmentation:</span>
+            <span>{{ externalFragmentation }} units</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Display -->
+  <div class="messages-section" *ngIf="message">
+    <div class="message" [ngClass]="messageType">
+      {{ message }}
+    </div>
+  </div>
+</div>
+

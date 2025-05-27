@@ -1,0 +1,528 @@
+<div class="container">
+  <div class="header">
+  <h2>Paging Simulation ({{ algorithm }})</h2>
+    <div class="algorithm-info">
+      <div class="info-tooltip">
+        <i class="info-icon">ℹ️</i>
+        <div class="tooltip-content">
+          <h4>{{ algorithm }} Algorithm</h4>
+          <p *ngIf="algorithm === 'FIFO'">
+            First-In-First-Out (FIFO) replaces the page that has been in memory the longest.
+            It's simple but doesn't consider page usage frequency.
+          </p>
+          <p *ngIf="algorithm === 'LRU'">
+            Least Recently Used (LRU) replaces the page that hasn't been used for the longest time.
+            It's more efficient than FIFO as it considers page usage patterns.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Left Panel: Controls and Memory -->
+    <div class="left-panel">
+      <!-- Educational Mode Controls -->
+      <div class="educational-controls">
+        <button class="mode-btn" [class.active]="showTheoryPanel" (click)="toggleTheoryPanel()">
+          <fa-icon [icon]="icons.faBook"></fa-icon> Theory Panel
+        </button>
+        <button class="mode-btn" [class.active]="isQuizMode" (click)="toggleQuizMode()">
+          <fa-icon [icon]="icons.faQuestionCircle"></fa-icon> Quiz Mode
+        </button>
+      </div>
+
+      <!-- Quiz Panel -->
+      <div class="quiz-panel" *ngIf="isQuizMode && currentQuizQuestion && !showQuizResults">
+        <div class="quiz-header">
+          <h3>Quiz Mode</h3>
+          <div class="quiz-info">
+            <span class="quiz-progress">Question {{ getQuizProgress() }}</span>
+            <span class="quiz-score">Score: {{ getQuizScore() }}</span>
+          </div>
+        </div>
+
+        <!-- Question Progress Indicator -->
+        <div class="question-progress">
+          <div *ngFor="let q of currentQuizQuestions; let i = index"
+               class="progress-dot"
+               [class.active]="i === currentQuestionIndex"
+               [class.completed]="i < currentQuestionIndex"
+               [class.correct]="i < currentQuestionIndex && quizResults[i].correct"
+               [class.incorrect]="i < currentQuestionIndex && !quizResults[i].correct">
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="question-header">
+            <span class="question-type" [ngClass]="currentQuizQuestion.type">
+              {{ currentQuizQuestion.type | titlecase }}
+            </span>
+            <span class="question-difficulty" [ngClass]="currentQuizQuestion.difficulty">
+              {{ currentQuizQuestion.difficulty | titlecase }}
+            </span>
+          </div>
+
+          <p class="question-text">{{ currentQuizQuestion.question }}</p>
+          
+          <div class="quiz-options">
+            <button *ngFor="let option of currentQuizQuestion.options; let i = index"
+                    class="quiz-option"
+                    [class.selected]="quizAnswer === i"
+                    [class.correct]="showQuizExplanation && i === currentQuizQuestion.correctAnswer"
+                    [class.incorrect]="showQuizExplanation && quizAnswer === i && i !== currentQuizQuestion.correctAnswer"
+                    (click)="!showQuizExplanation && submitQuizAnswer(i)">
+              {{ option }}
+            </button>
+          </div>
+
+          <div class="quiz-explanation" *ngIf="showQuizExplanation">
+            <div class="explanation-content">
+              <fa-icon [icon]="quizAnswer === currentQuizQuestion.correctAnswer ? icons.faCheckCircle : icons.faTimesCircle"></fa-icon>
+              <p>{{ currentQuizQuestion.explanation }}</p>
+            </div>
+            <button class="next-question-btn" (click)="nextQuizQuestion()">
+              {{ currentQuestionIndex < QUESTIONS_PER_QUIZ - 1 ? 'Next Question' : 'See Results' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Results -->
+      <div class="quiz-results" *ngIf="showQuizResults">
+        <h3>Quiz Results</h3>
+        <div class="results-summary">
+          <div class="score-card">
+            <h4>Final Score</h4>
+            <div class="score">{{ getQuizScore() }}</div>
+            <div class="percentage">
+              {{ (quizScore / totalQuizQuestions * 100) | number:'1.0-0' }}%
+            </div>
+          </div>
+        </div>
+
+        <div class="results-details">
+          <h4>Question Review</h4>
+          <div class="result-item" *ngFor="let result of quizResults">
+            <div class="result-header" [ngClass]="{'correct': result.correct, 'incorrect': !result.correct}">
+              <fa-icon [icon]="result.correct ? icons.faCheckCircle : icons.faTimesCircle"></fa-icon>
+              <span class="question-text">{{ result.question }}</span>
+            </div>
+            <div class="result-details">
+              <p><strong>Your Answer:</strong> {{ result.userAnswer }}</p>
+              <p><strong>Correct Answer:</strong> {{ result.correctAnswer }}</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="restart-btn" (click)="restartQuiz()">
+          <fa-icon [icon]="icons.faRedo"></fa-icon> Retake Quiz
+        </button>
+      </div>
+
+      <!-- Theory Panel -->
+      <div class="theory-panel" *ngIf="showTheoryPanel">
+        <!-- Basic Paging Concepts -->
+        <div class="theory-section">
+          <h3>{{ theoryContent.paging.title }}</h3>
+          <div class="theory-content">
+            <p [innerHTML]="theoryContent.paging.content"></p>
+          </div>
+        </div>
+
+        <!-- Address Translation Section -->
+        <div class="theory-section">
+          <h3>Address Translation in Paging</h3>
+          <div class="theory-content">
+            <div class="concept-card">
+              <h4>Understanding Address Translation</h4>
+              <p>Address translation is the process of converting virtual addresses (used by programs) into physical addresses (actual memory locations). This process is fundamental to paging systems.</p>
+              
+              <div class="address-translation-diagram">
+                <h5>Virtual Address Structure (24-bit)</h5>
+                <div class="address-bits">
+                  <div class="bit-group">
+                    <span class="bit-label">Page Number (12 bits)</span>
+                    <div class="bits">0000 0000 0000</div>
+                  </div>
+                  <div class="bit-group">
+                    <span class="bit-label">Offset (12 bits)</span>
+                    <div class="bits">0000 0000 0000</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="translation-steps">
+                <h5>Translation Process</h5>
+                <ol>
+                  <li>
+                    <strong>Virtual Address Generation:</strong>
+                    <p>CPU generates a virtual address when accessing memory</p>
+                  </li>
+                  <li>
+                    <strong>Address Division:</strong>
+                    <p>Virtual address is split into page number and offset</p>
+                    <ul>
+                      <li>Page Number: Higher-order bits (identifies the page)</li>
+                      <li>Offset: Lower-order bits (position within the page)</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Page Table Lookup:</strong>
+                    <p>System uses page number to find corresponding frame number in page table</p>
+                  </li>
+                  <li>
+                    <strong>Physical Address Calculation:</strong>
+                    <p>Physical Address = (Frame Number × Page Size) + Offset</p>
+                  </li>
+                </ol>
+              </div>
+
+              <div class="example-card">
+                <h5>Example</h5>
+                <p>Given:</p>
+                <ul>
+                  <li>Virtual Address: 0x123456</li>
+                  <li>Page Size: 4096 bytes (4KB)</li>
+                  <li>Page Number: 291 (0x123)</li>
+                  <li>Offset: 1110 (0x456)</li>
+                  <li>Frame Number: 5</li>
+                </ul>
+                <p>Physical Address = (5 × 4096) + 1110 = 21590 (0x5436)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page Table Section -->
+        <div class="theory-section">
+          <h3>Page Table: The Memory Mapping System</h3>
+          <div class="theory-content">
+            <div class="concept-card">
+              <h4>What is a Page Table?</h4>
+              <p>A page table is a data structure used by the operating system to store the mapping between virtual addresses and physical addresses. It's like a lookup table that tells the system where to find each page in physical memory.</p>
+            </div>
+
+            <div class="concept-card">
+              <h4>Why Do We Need Page Tables?</h4>
+              <ul class="feature-list">
+                <li>
+                  <strong>Memory Mapping:</strong>
+                  <p>Translates virtual addresses (used by programs) to physical addresses (actual memory locations)</p>
+                </li>
+                <li>
+                  <strong>Memory Protection:</strong>
+                  <p>Controls which pages a process can access, preventing unauthorized access to memory</p>
+                </li>
+                <li>
+                  <strong>Memory Sharing:</strong>
+                  <p>Allows multiple processes to share the same physical memory pages</p>
+                </li>
+                <li>
+                  <strong>Memory Management:</strong>
+                  <p>Helps the OS track which pages are in memory and which are on disk</p>
+                </li>
+              </ul>
+            </div>
+
+            <div class="concept-card">
+              <h4>Page Table Structure</h4>
+              <div class="table-structure">
+                <div class="table-entry">
+                  <span class="entry-label">Frame Number:</span>
+                  <span class="entry-desc">Physical memory location where the page is stored</span>
+                </div>
+                <div class="table-entry">
+                  <span class="entry-label">Present/Absent Bit:</span>
+                  <span class="entry-desc">Indicates if the page is currently in physical memory</span>
+                </div>
+                <div class="table-entry">
+                  <span class="entry-label">Protection Bits:</span>
+                  <span class="entry-desc">Controls read/write/execute permissions</span>
+                </div>
+                <div class="table-entry">
+                  <span class="entry-label">Reference Bit:</span>
+                  <span class="entry-desc">Used by page replacement algorithms to track page usage</span>
+                </div>
+                <div class="table-entry">
+                  <span class="entry-label">Dirty Bit:</span>
+                  <span class="entry-desc">Indicates if the page has been modified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page Hits and Faults Section -->
+        <div class="theory-section">
+          <h3>Understanding Page Hits and Faults</h3>
+          <div class="theory-content">
+            <div class="event-card hit">
+              <h4>Page Hit</h4>
+              <div class="event-details">
+                <p class="definition">A page hit occurs when the requested page is already present in physical memory.</p>
+                <div class="benefits">
+                  <h5>Benefits:</h5>
+                  <ul>
+                    <li>Fast access (no disk I/O required)</li>
+                    <li>No page replacement needed</li>
+                    <li>Minimal performance impact</li>
+                  </ul>
+                </div>
+                <div class="example">
+                  <h5>Example:</h5>
+                  <p>When a process requests a page that's already loaded in a frame, it's a page hit. The system can immediately access the data without any additional operations.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="event-card fault">
+              <h4>Page Fault</h4>
+              <div class="event-details">
+                <p class="definition">A page fault occurs when the requested page is not present in physical memory and must be loaded from disk.</p>
+                
+                <div class="fault-types">
+                  <h5>Types of Page Faults:</h5>
+                  <div class="fault-type">
+                    <strong>1. Minor Page Fault:</strong>
+                    <p>Page is in memory but not mapped in the page table</p>
+                  </div>
+                  <div class="fault-type">
+                    <strong>2. Major Page Fault:</strong>
+                    <p>Page must be loaded from disk</p>
+                  </div>
+                  <div class="fault-type">
+                    <strong>3. Invalid Page Fault:</strong>
+                    <p>Page doesn't exist or access is not permitted</p>
+                  </div>
+                </div>
+
+                <div class="fault-process">
+                  <h5>Page Fault Handling Process:</h5>
+                  <ol>
+                    <li>OS traps the page fault</li>
+                    <li>Checks if page is valid</li>
+                    <li>If valid, loads page from disk</li>
+                    <li>Updates page table</li>
+                    <li>Restarts the instruction that caused the fault</li>
+                  </ol>
+                </div>
+
+                <div class="impact">
+                  <h5>Impact on Performance:</h5>
+                  <ul>
+                    <li>Requires disk I/O (slow)</li>
+                    <li>May trigger page replacement</li>
+                    <li>Significant performance penalty</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Algorithms Section -->
+        <div class="theory-section">
+          <h3>{{ theoryContent.algorithms.title }}</h3>
+          <div class="algorithm-tabs">
+            <div class="tab" [class.active]="algorithm === 'FIFO'">
+              <h4>FIFO</h4>
+              <p [innerHTML]="theoryContent.algorithms.content.FIFO"></p>
+            </div>
+            <div class="tab" [class.active]="algorithm === 'LRU'">
+              <h4>LRU</h4>
+              <p [innerHTML]="theoryContent.algorithms.content.LRU"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Panel -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <label>
+            <span class="label-text">Number of Frames:</span>
+            <input type="number" [(ngModel)]="numFrames" min="1" max="10" 
+                   [title]="'Set the number of frames in physical memory (1-10)'">
+    </label>
+          <div class="control-info">
+            <small>Frames represent physical memory blocks where pages are stored</small>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span class="label-text">Page Replacement Algorithm:</span>
+            <select [(ngModel)]="algorithm" (change)="onAlgorithmChange()">
+              <option value="FIFO">First-In-First-Out (FIFO)</option>
+              <option value="LRU">Least Recently Used (LRU)</option>
+      </select>
+    </label>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span class="label-text">Page Request Sequence:</span>
+            <input type="text" [(ngModel)]="pageRequestInput" 
+                   placeholder="e.g. 1,2,3,4,1,2,5,1,2,3,4,5"
+                   [title]="'Enter page numbers separated by commas'">
+    </label>
+          <div class="control-info">
+            <small>Enter the sequence of pages that need to be accessed</small>
+          </div>
+        </div>
+
+        <div class="simulation-controls">
+          <button (click)="runCustomSimulation()" [disabled]="isRunning" class="primary-btn">
+            {{ isRunning ? 'Simulation Running...' : 'Run Simulation' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Memory Visualization -->
+      <div class="simulation-display" *ngIf="displayStep">
+        <div class="step-info">
+          <h3>Step {{ displayStep.step }} of {{ simulationSteps.length }}</h3>
+          <div class="step-details" [ngClass]="displayStep.action">
+            <p>
+              <strong>Current Page Request:</strong> P{{ displayStep.page }}
+              <span class="action-badge" [ngClass]="displayStep.action">
+                {{ displayStep.action === 'hit' ? 'Page Hit' : 'Page Fault' }}
+              </span>
+            </p>
+            <p *ngIf="displayStep.evicted !== undefined">
+              <strong>Evicted Page:</strong> P{{ displayStep.evicted }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Speed Control -->
+        <div class="speed-control" *ngIf="isRunning">
+          <label>Simulation Speed:
+            <input type="range" [(ngModel)]="simulationSpeed" min="500" max="3000" step="100"
+                   (input)="updateSimulationSpeed()">
+            <span>{{ simulationSpeed }}ms</span>
+          </label>
+  </div>
+
+        <div class="memory-visualization">
+          <h4>Physical Memory (Frames)</h4>
+  <div class="memory-frame">
+            <div *ngFor="let page of displayStep.memory; let i = index"
+      class="frame"
+                 [ngClass]="{
+                   'evicted': page === displayStep.evicted,
+                   'hit': page === displayStep.page && displayStep.action === 'hit',
+                   'fault': page === displayStep.page && displayStep.action === 'fault'
+                 }"
+                 [title]="'Frame ' + i + (page !== -1 ? ' - Page ' + page : ' - Empty')">
+              <div class="frame-content">
+                <div class="frame-number">F{{ i }}</div>
+                <div class="page-number">{{ page !== -1 ? 'P' + page : 'Empty' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation-controls" *ngIf="!isRunning">
+          <button (click)="prevStep()" [disabled]="currentStep === 0">Previous Step</button>
+          <button (click)="nextStep()" [disabled]="currentStep === simulationSteps.length - 1">Next Step</button>
+          <button (click)="reset()" class="reset-btn">Reset Simulation</button>
+    </div>
+  </div>
+
+      <!-- Step Explanation Panel -->
+      <div class="step-explanation-panel" *ngIf="displayStep">
+        <h3>Step {{ displayStep.step }} Explanation</h3>
+        <div class="explanation-content" [ngClass]="displayStep.action">
+          <div class="step-summary">
+            <p class="step-action">
+              <strong>Action:</strong> 
+              <span class="action-badge" [ngClass]="displayStep.action">
+                {{ displayStep.action === 'hit' ? 'Page Hit' : 'Page Fault' }}
+              </span>
+            </p>
+            <p class="step-detail" *ngIf="displayStep.evicted !== undefined">
+              <strong>Evicted Page:</strong> P{{ displayStep.evicted }}
+            </p>
+          </div>
+          <div class="step-explanation">
+            <p>{{ getStepExplanation(displayStep) }}</p>
+          </div>
+          <div class="step-tips" *ngIf="!isQuizMode">
+            <div class="tip">
+              <fa-icon [icon]="icons.faLightbulb"></fa-icon>
+              <span>Tip: {{ displayStep.action === 'hit' ? 
+                'This page was already in memory, so no page replacement was needed.' : 
+                'A new page needed to be loaded into memory.' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Page Table and Summary -->
+    <div class="right-panel">
+  <!-- Page Table -->
+      <div class="page-table-container" *ngIf="displayStep">
+    <h4>Page Table</h4>
+        <div class="page-table">
+          <div class="table-header">
+            <span>Page Number</span>
+            <span>Frame Number</span>
+            <span>Status</span>
+          </div>
+          <div *ngFor="let key of objectKeys(displayStep.page_table)" class="table-row"
+               [ngClass]="{'current-page': key === 'P' + displayStep.page}">
+            <span>{{ key }}</span>
+            <span>{{ displayStep.page_table[key] }}</span>
+            <span class="page-status" [ngClass]="{
+              'hit': key === 'P' + displayStep.page && displayStep.action === 'hit',
+              'fault': key === 'P' + displayStep.page && displayStep.action === 'fault',
+              'evicted': key === 'P' + displayStep.evicted
+            }">
+              {{ getPageStatus(key, displayStep) }}
+            </span>
+          </div>
+    </div>
+  </div>
+
+      <!-- Summary Statistics -->
+      <div class="summary-panel" *ngIf="displayStep">
+        <h3>Simulation Summary</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">Total Requests:</span>
+            <span class="stat-value">{{ simulationSteps.length }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Page Faults:</span>
+            <span class="stat-value fault">{{ pageFaults }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Page Hits:</span>
+            <span class="stat-value hit">{{ pageHits }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Hit Ratio:</span>
+            <span class="stat-value">{{ (pageHits / simulationSteps.length) | number:'1.2-2' }}</span>
+          </div>
+  </div>
+
+        <!-- Performance Chart -->
+        <div class="chart-container">
+          <h4>Performance Visualization</h4>
+          <div class="chart-wrapper">
+    <canvas baseChart
+              [data]="chartData"
+              [type]="chartType"
+              [options]="chartOptions">
+    </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
