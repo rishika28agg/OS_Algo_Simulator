@@ -3,27 +3,28 @@
 
   <div class="form-section">
     <label>Algorithm:</label>
-    <select [(ngModel)]="selectedAlgorithm">
+    <select [(ngModel)]="selectedAlgorithm" [disabled]="animationPlaying">
       <option *ngFor="let algo of algorithms">{{ algo }}</option>
     </select>
 
     <div *ngIf="selectedAlgorithm === 'Round Robin (RR)'">
       <label>Time Quantum:</label>
-      <input type="number" [(ngModel)]="timeQuantum" min="1" />
+      <input type="number" [(ngModel)]="timeQuantum" min="1" [disabled]="animationPlaying" />
     </div>
 
     <div class="input-group">
-      <input type="text" placeholder="Process ID" [(ngModel)]="process.id" />
-      <input type="number" placeholder="Arrival Time" [(ngModel)]="process.arrivalTime" />
-      <input type="number" placeholder="Burst Time" [(ngModel)]="process.burstTime" />
-      <input type="number" placeholder="Priority" [(ngModel)]="process.priority" />
-      <button (click)="addProcess()">Add Process</button>
+      <input type="text" placeholder="Process ID" [(ngModel)]="process.id" [disabled]="animationPlaying" />
+      <input type="number" placeholder="Arrival Time" [(ngModel)]="process.arrivalTime" [disabled]="animationPlaying" />
+      <input type="number" placeholder="Burst Time" [(ngModel)]="process.burstTime" [disabled]="animationPlaying" />
+      <input type="number" placeholder="Priority" [(ngModel)]="process.priority"
+             [disabled]="animationPlaying || selectedAlgorithm !== 'Priority Scheduling'" />
+      <button (click)="addProcess()" [disabled]="animationPlaying">Add Process</button>
     </div>
   </div>
 
   <div class="process-table">
     <h3>Process List</h3>
-    <table>
+    <table *ngIf="processList.length > 0; else noProcesses">
       <thead>
         <tr>
           <th>ID</th>
@@ -41,39 +42,53 @@
         </tr>
       </tbody>
     </table>
+    <ng-template #noProcesses>
+      <p style="text-align: center; color: #777;">No processes added yet.</p>
+    </ng-template>
   </div>
 
-  <button class="simulate-btn" (click)="runSimulation()">Run Simulation</button>
+  <button class="simulate-btn" (click)="runSimulation()" [disabled]="processList.length === 0 || animationPlaying">Run Simulation</button>
+  <button class="simulate-btn clear-btn" (click)="clearAll()" [disabled]="animationPlaying">Clear All</button>
 
-  <div *ngIf="ganttChart.length > 0" class="results-section">
-    <h3>Gantt Chart</h3>
-    <div class="gantt-chart">
-      <div *ngFor="let block of ganttChart" class="gantt-block" [style.width.px]="(block.end - block.start) * 20">
-        <span>{{ block.id }}</span>
-        <div class="time-labels">
-          <span>{{ block.start }}</span>
-          <span>{{ block.end }}</span>
+  <div *ngIf="animatedGanttChart.length > 0 || avgWT > 0 || avgTAT > 0" class="results-section">
+    <h3>Gantt Chart Animation</h3>
+    <div class="gantt-chart-container">
+        <div class="time-axis-labels">
+            <span *ngFor="let time of getTimeMarkers()" class="time-point"
+                  [style.left.%]="(time / totalTime) * 100">
+                {{ time }}
+            </span>
         </div>
-      </div>
+        <div class="gantt-chart-bars">
+            <div *ngFor="let block of animatedGanttChart"
+                 class="gantt-block"
+                 [style.width.%]="((block.end - block.start) / totalTime) * 100"
+                 [style.left.%]="(block.start / totalTime) * 100"
+                 [style.background-color]="getProcessColor(block.id)"
+                 [title]="'Process: ' + block.id + '\nStart: ' + block.start + '\nEnd: ' + block.end">
+                <span *ngIf="((block.end - block.start) / totalTime) * 100 > 5">{{ block.id }}</span>
+            </div>
+        </div>
     </div>
 
-    <p>Average Waiting Time: {{ avgWT.toFixed(2) }}</p>
-    <p>Average Turnaround Time: {{ avgTAT.toFixed(2) }}</p>
+
+    <p>Average Waiting Time: <strong>{{ avgWT.toFixed(2) }}</strong></p>
+    <p>Average Turnaround Time: <strong>{{ avgTAT.toFixed(2) }}</strong></p>
 
     <div class="calculation-details">
-        <h3>Calculation Steps</h3>
-        <h4>Overall Execution Flow:</h4>
-        <div class="calculation-log-container">
-            <p *ngFor="let step of overallCalculations">{{ step }}</p>
-        </div>
-        <h4>Waiting Time (WT) Calculation:</h4>
-        <div class="calculation-log-container">
-            <p *ngFor="let calc of waitingTimeCalculations">{{ calc }}</p>
-        </div>
-        <h4>Turnaround Time (TAT) Calculation:</h4>
-        <div class="calculation-log-container">
-            <p *ngFor="let calc of turnaroundTimeCalculations">{{ calc }}</p>
-        </div>
+      <h3>Calculation Steps</h3>
+      <h4>Overall Execution Flow:</h4>
+      <div class="calculation-log-container">
+        <p *ngFor="let step of overallCalculations">{{ step }}</p>
+      </div>
+      <h4>Waiting Time (WT) Calculation:</h4>
+      <div class="calculation-log-container">
+        <p *ngFor="let calc of waitingTimeCalculations">{{ calc }}</p>
+      </div>
+      <h4>Turnaround Time (TAT) Calculation:</h4>
+      <div class="calculation-log-container">
+        <p *ngFor="let calc of turnaroundTimeCalculations">{{ calc }}</p>
+      </div>
     </div>
   </div>
 </div>

@@ -1,49 +1,120 @@
 .container {
   max-width: 900px;
-  margin: auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  margin: 20px auto;
+  padding: 25px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+h1, h2, h3, h4 {
   text-align: center;
   color: #2c3e50;
+  margin-bottom: 20px;
 }
 
-.form-section {
-  background: #f4f4f4;
-  padding: 15px;
-  border-radius: 8px;
+.form-section, .process-table, .results-section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
+}
+
+.form-section label {
+  font-weight: bold;
+  color: #555;
+  margin-right: 10px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.form-section select {
+  width: auto; /* Adjust width dynamically */
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.form-section select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .input-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px; /* Spacing between input elements */
   margin-top: 10px;
+  align-items: center;
 }
 
-.input-group input,
-select {
-  padding: 5px;
-  border-radius: 4px;
+.input-group input[type="text"],
+.input-group input[type="number"] {
+  flex: 1; /* Allow inputs to grow */
+  min-width: 120px; /* Minimum width for inputs */
+  padding: 10px 12px;
+  border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 button {
-  padding: 6px 12px;
+  padding: 12px 25px;
   border: none;
   background-color: #3498db;
   color: white;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button:hover {
   background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Specific button styles */
+.simulate-btn {
+  display: inline-block; /* Changed to inline-block for side-by-side */
+  margin: 10px auto; /* Adjust margin */
+  background-color: #27ae60;
+  margin-right: 10px; /* Space between simulate and clear */
+}
+
+.simulate-btn:hover {
+  background-color: #229954;
+}
+
+.clear-btn {
+  background-color: #e74c3c;
+}
+
+.clear-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Process Table */
 .process-table table {
   width: 100%;
   border-collapse: collapse;
@@ -53,89 +124,144 @@ button:hover {
 .process-table th,
 .process-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.process-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Results Section (common for metrics and logs) */
+.results-section {
+  margin-top: 30px;
+  padding: 25px;
+  background-color: #eaf7ff; /* Light blue background for results */
+  border: 1px solid #cceeff;
+  border-radius: 10px;
+}
+
+.results-section p {
+  font-size: 1.1rem;
+  margin: 8px 0;
+  color: #333;
   text-align: center;
 }
 
-.simulate-btn {
-  display: block;
-  margin: 20px auto;
-  background-color: #27ae60;
+.results-section p strong {
+  color: #0056b3;
 }
 
-.results-section {
+/* Gantt Chart */
+.gantt-chart-container {
   margin-top: 20px;
-  padding: 15px;
-  background: #ecf0f1;
+  position: relative;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  padding-bottom: 40px; /* Space for time labels below the chart */
+  border: 1px solid #ccc;
   border-radius: 8px;
+  min-height: 100px; /* Ensure space even if no bars */
+  background-color: #fefefe;
+  margin-bottom: 25px;
 }
-.gantt-chart {
-  display: flex;
-  margin-bottom: 30px; 
-  overflow-x: auto;
-  min-height: 50px; 
-  align-items: flex-start; 
-  padding-bottom: 25px; 
+
+.time-axis-labels {
+  position: absolute;
+  bottom: 0; /* Position at the bottom of the container */
+  left: 0;
+  right: 0;
+  height: 20px; /* Height for the labels */
+  white-space: nowrap; /* Keep labels on one line */
+}
+
+.time-point {
+  position: absolute;
+  transform: translateX(-50%); /* Center the number on its tick */
+  font-size: 0.8em;
+  color: #666;
+  text-align: center;
+  bottom: 0; /* Align to the very bottom of its parent */
+  width: 30px; /* Give it a fixed width for consistent spacing if percentage is small */
+}
+
+.time-point::before { /* Vertical line for time axis */
+  content: '';
+  position: absolute;
+  top: -60px; /* Extend above the labels into the chart area */
+  left: 50%;
+  width: 1px;
+  height: 60px;
+  background-color: #ccc;
+  transform: translateX(-50%);
+}
+
+.gantt-chart-bars {
+  position: relative;
+  height: 50px; /* Height for the actual process bars */
+  min-width: 100%; /* Ensures it fills container and allows overflow */
+  border-bottom: 1px solid #bbb; /* Base line for the chart */
+  margin-top: 10px; /* Space between top of container and bars */
 }
 
 .gantt-block {
-  background-color: #8e44ad;
-  color: white;
-  min-height: 30px; 
-  padding: 5px 10px; 
-  margin-right: 2px;
-  border-radius: 4px;
-  position: relative;
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  flex-shrink: 0; 
-}
-
-.time-labels {
-  font-size: 11px; 
   position: absolute;
-  bottom: -25px; 
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  background-color: #333; 
-  color: white; 
-  padding: 2px 0px; 
-  border-radius: 3px;
-  font-weight: bold; 
-  z-index: 1; 
+  top: 10px; /* Vertically center in the gantt-chart-bars */
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+  opacity: 0; /* Start invisible for animation */
+  animation: fadeIn 0.5s forwards; /* Animation for appearance */
+  transition: width 0.5s ease-out, left 0.5s ease-out, background-color 0.3s ease, opacity 0.5s ease-out; /* Smooth transitions */
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow if text is too long */
+  text-overflow: ellipsis; /* Add ellipsis if text is cut off */
+  padding: 0 5px; /* Add some padding inside the bar */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
-.time-labels span {
-    padding: 0 2px; 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+/* Calculation Details */
 .calculation-details {
-    margin-top: 20px;
-    border-top: 1px solid #ddd;
-    padding-top: 15px;
+  margin-top: 20px;
+  padding-top: 15px;
 }
 
 .calculation-details h3, .calculation-details h4 {
-    color: #2c3e50;
-    margin-bottom: 10px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  text-align: left; /* Align log headings to left */
 }
 
 .calculation-log-container {
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    max-height: 250px;
-    overflow-y: auto;
-    font-family: 'Courier New', Courier, monospace; 
-    font-size: 0.9em;
+  background-color: #f0f8ff; /* Lighter background for logs */
+  border: 1px solid #d0e8ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  max-height: 250px; /* Limit height */
+  overflow-y: auto; /* Add scroll if content overflows */
+  font-family: 'Consolas', 'Courier New', Courier, monospace; /* Monospace font for logs */
+  font-size: 0.9em;
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-wrap; /* Ensures long lines wrap */
+  word-wrap: break-word; /* Breaks long words if needed */
 }
 
 .calculation-log-container p {
-    margin: 3px 0;
-    line-height: 1.4;
-    color: #444;
+  margin: 3px 0;
+  line-height: 1.4;
+  color: #444;
 }

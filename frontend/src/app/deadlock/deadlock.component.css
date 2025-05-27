@@ -1,107 +1,273 @@
-.content-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 2rem; /* space from the navbar */
-}
-
-h1 {
-  margin: 0;
-  font-size: 2rem;
-}
-
 .container {
   max-width: 800px;
   margin: 20px auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  border: 1px solid #e0e0e0; /* Added a subtle border */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  padding: 25px; /* Increased padding */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+  border: 1px solid #e0e0e0;
+  border-radius: 12px; /* More rounded corners */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+  background-color: #ffffff; /* White background */
 }
 
+h1, h2, h3 {
+  color: #2c3e50; /* Darker blue heading */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Input Sections */
 .input-group {
   margin-bottom: 15px;
-  display: flex; /* Align items horizontally */
-  align-items: center; /* Vertically center items */
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px; /* Space between elements */
+  background-color: #f8f8f8; /* Light background for input groups */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
 }
 
 .input-group label {
   margin-right: 10px;
   font-weight: bold;
-  min-width: 80px; /* Ensure labels have consistent width */
+  color: #555;
+  min-width: 80px;
 }
 
 .input-group input {
-  flex-grow: 1; /* Allow input to take available space */
-  margin: 0 8px 5px 0; /* Adjust margin for better spacing */
-  padding: 8px;
+  flex-grow: 1;
+  padding: 10px 12px; /* Increased padding */
   border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box; /* Include padding and border in element's total width/height */
-  min-width: 150px; /* Minimum width for inputs */
+  border-radius: 6px; /* Slightly more rounded */
+  box-sizing: border-box;
+  min-width: 150px;
+  font-size: 0.95rem; /* Slightly larger font */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.input-group input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Buttons */
 button {
-  padding: 8px 16px;
+  padding: 10px 20px; /* Larger buttons */
   cursor: pointer;
-  background-color: #2a3f5f;
+  background-color: #3498db; /* Blue button */
   color: white;
   border: none;
-  border-radius: 5px;
-  transition: background-color 0.3s ease; /* Smooth hover effect */
+  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: 600; /* Bolder text */
+  font-size: 0.95rem;
 }
 
 button:hover {
-  background-color: #1e2e45;
+  background-color: #2980b9;
+  transform: translateY(-2px); /* Slight lift on hover */
 }
 
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.8;
+}
+
+.simulate-btn {
+  display: inline-block; /* Allow side-by-side */
+  margin: 15px 10px 20px 0; /* Adjusted margin */
+  background-color: #27ae60; /* Green for main action */
+}
+
+.simulate-btn:hover {
+  background-color: #229954;
+}
+
+.clear-btn {
+  background-color: #e74c3c; /* Red for clear */
+}
+
+.clear-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Output Sections */
 .output-section {
   margin-top: 25px;
-  padding-top: 10px;
-  border-top: 2px solid #eee; /* Lighter border for output sections */
+  padding: 20px; /* Increased padding */
+  border-top: 2px solid #eee;
+  background-color: #fefefe; /* White background */
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .output-section h3 {
   color: #2a3f5f;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  text-align: left; /* Align headings to left in output */
 }
 
+/* Current State Display */
+.current-state-display {
+  background-color: #eaf7ff; /* Light blue background */
+  border: 1px solid #cceeff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.current-state-display p {
+  margin: 5px 0;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+.current-state-display strong {
+  color: #0056b3; /* Darker blue for emphasis */
+}
+
+/* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
 
-table, th, td {
-  border: 1px solid #ddd;
-}
-
 th, td {
-  padding: 8px;
-  text-align: left;
+  border: 1px solid #ddd;
+  padding: 12px; /* Increased padding */
+  text-align: center; /* Centered text for table cells */
+  font-size: 0.9rem;
 }
 
 th {
   background-color: #f2f2f2;
+  font-weight: 600;
+  color: #444;
 }
 
+/* Process Table Highlighting */
+.highlighted-process {
+  background-color: #fffacd; /* Light yellow for currently checked process */
+  transition: background-color 0.5s ease-in-out;
+}
+
+.finished-process {
+  background-color: #e6ffe6; /* Light green for finished processes */
+  opacity: 0.8;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.status-finished {
+    color: #28a745; /* Green checkmark */
+    font-weight: bold;
+}
+.status-waiting {
+    color: #dc3545; /* Red cross */
+    font-weight: bold;
+}
+
+/* Safe Sequence Animation Steps */
+.safe-sequence-steps-container {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fcfcfc;
+  margin-bottom: 20px;
+}
+
+.safe-sequence-step {
+  background-color: #e0f2f7; /* Light blue for steps */
+  border: 1px solid #cce7ed;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping */
+  align-items: center;
+  font-size: 0.9em;
+  color: #333;
+  opacity: 0; /* Start invisible */
+  animation: fadeIn 0.5s forwards; /* Animation for appearance */
+  transition: opacity 0.3s ease;
+}
+
+.safe-sequence-step:nth-child(even) {
+  background-color: #f0f8ff; /* Alternate shade */
+}
+
+.step-message {
+  flex-basis: 100%; /* Takes full width */
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.step-work, .step-finish {
+  margin-right: 15px;
+  color: #0056b3;
+}
+
+/* Final Safe Sequence Display */
+.final-safe-sequence {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #27ae60; /* Green for safe sequence */
+  background-color: #e6ffe6;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+/* Wait-For Graph Output */
 ul {
-  list-style-type: none; /* Remove bullet points */
+  list-style-type: none;
   padding: 0;
   margin: 10px 0;
 }
 
-li {
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
-  padding: 8px;
-  margin-bottom: 5px;
-  border-radius: 4px;
+.wait-for-edge {
+  background-color: #ffe6e6; /* Light red for deadlock info */
+  border: 1px solid #ffcccc;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: #cc0000;
+  font-weight: bold;
 }
 
+/* General Paragraphs (especially for status messages) */
 p {
   margin-top: 10px;
   color: #555;
+  text-align: center; /* Center status messages */
+}
+
+/* Overall Algorithm Flow Log */
+.calculation-log-container {
+  background-color: #f0f0f0; /* Darker grey for logs */
+  border: 1px solid #e0e0e0;
+  padding: 15px;
+  border-radius: 8px;
+  max-height: 300px; /* Limit height */
+  overflow-y: auto; /* Add scroll if content overflows */
+  font-family: 'Consolas', 'Courier New', Courier, monospace; /* Monospace font */
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-wrap; /* Preserve formatting and wrap */
+  word-wrap: break-word; /* Break long words */
+}
+
+/* Fade-in animation for dynamic content */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

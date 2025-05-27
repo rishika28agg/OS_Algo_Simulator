@@ -2,68 +2,93 @@
   <h2>Banker's Algorithm - Safe Sequence Checker</h2>
 
   <div class="input-group">
-    <label>Total Resources:</label>
-    <input type="text" [(ngModel)]="totalInput" placeholder="e.g. 10 5 7" />
-    <button (click)="setResources()">Set Resources</button>
+    <label for="totalResourcesInput">Total Resources:</label>
+    <input id="totalResourcesInput" type="text" [(ngModel)]="totalInput" placeholder="e.g. 10 5 7" [disabled]="animationPlaying" />
+    <button (click)="setResources()" [disabled]="animationPlaying">Set Resources</button>
   </div>
 
   <div class="input-group">
-    <label>Max Demand:</label>
-    <input type="text" [(ngModel)]="maxDemandInput" placeholder="e.g. 7 5 3" />
-    <label>Allocated:</label>
-    <input type="text" [(ngModel)]="requestInput" placeholder="e.g. 0 1 0" />
-    <button (click)="addProcess()">Add Process</button>
+    <label for="maxDemandInput">Max Demand:</label>
+    <input id="maxDemandInput" type="text" [(ngModel)]="maxDemandInput" placeholder="e.g. 7 5 3" [disabled]="animationPlaying" />
+    <label for="requestInput">Allocated:</label>
+    <input id="requestInput" type="text" [(ngModel)]="requestInput" placeholder="e.g. 0 1 0" [disabled]="animationPlaying" />
+    <button (click)="addProcess()" [disabled]="animationPlaying">Add Process</button>
   </div>
 
   <div class="output-section">
+    <h3>Current System State</h3>
+    <div class="current-state-display">
+      <p><strong>Available:</strong> [ {{ available.join(' ') }} ]</p>
+      <p><strong>Current Work (during simulation):</strong> [ {{ currentWork.join(' ') || 'N/A' }} ]</p>
+    </div>
+
     <h3>Processes Table</h3>
-    <table *ngIf="processes.length > 0">
+    <table *ngIf="processes.length > 0; else noProcessesTable">
       <thead>
         <tr>
           <th>PID</th>
           <th>Max Demand</th>
           <th>Allocated</th>
           <th>Need</th>
-        </tr>
+          <th>Finished</th> </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let process of processes">
+        <tr *ngFor="let process of processes; let i = index"
+            [class.highlighted-process]="process.id === highlightedProcessId"
+            [class.finished-process]="currentFinish[i]">
           <td>P{{ process.id }}</td>
           <td>{{ process.maxDemand.join(' ') }}</td>
           <td>{{ process.allocation.join(' ') }}</td>
           <td>{{ getNeed(process) }}</td>
+          <td>
+            <span *ngIf="currentFinish[i]" class="status-finished">&#10003; Yes</span>
+            <span *ngIf="!currentFinish[i]" class="status-waiting">&#10006; No</span>
+          </td>
         </tr>
       </tbody>
     </table>
-    <p *ngIf="processes.length === 0">No processes added yet.</p>
+    <ng-template #noProcessesTable>
+      <p style="text-align: center; color: #777;">No processes added yet.</p>
+    </ng-template>
   </div>
 
-  <div class="output-section">
-    <h3>Safe Sequence Output</h3>
+  <button class="simulate-btn" (click)="runBankersAlgorithm()" [disabled]="processes.length === 0 || animationPlaying">Run Banker's Algorithm</button>
+  <button class="simulate-btn clear-btn" (click)="resetSimulationState(); processes = []; totalResources = []; totalInput = ''; available = []" [disabled]="animationPlaying">Clear All</button>
+
+  <div class="output-section" *ngIf="safeSequenceSteps.length > 0 || safeSequence.length > 0">
+    <h3>Safe Sequence Animation Steps</h3>
+    <div class="safe-sequence-steps-container">
+      <div *ngFor="let step of safeSequenceSteps" class="safe-sequence-step">
+        <span class="step-message">{{ step.message }}</span>
+        <span class="step-work">Work: [{{ step.work.join(' ') }}]</span>
+        </div>
+    </div>
+
     <p *ngIf="safeSequence.length > 0">
-      Safe Sequence: {{ getSafeSequenceString() }}
+      Safe Sequence: <span class="final-safe-sequence">{{ getSafeSequenceString() }}</span>
     </p>
     <p *ngIf="processes.length > 0 && safeSequence.length === 0">
-      No safe sequence found. The system is in an unsafe state (potential deadlock).
+      No safe sequence found. The system is in an **unsafe state** (potential deadlock).
     </p>
-    <p *ngIf="processes.length === 0">
-      Set resources and add processes to calculate the safe sequence.
+  </div>
+
+  <div class="output-section" *ngIf="waitForGraph.length > 0 || (processes.length > 0 && safeSequence.length > 0)">
+    <h3>Wait-For Graph Output</h3>
+    <ul *ngIf="waitForGraph.length > 0">
+      <li *ngFor="let edge of waitForGraph" class="wait-for-edge">{{ edge }}</li>
+    </ul>
+    <p *ngIf="processes.length > 0 && safeSequence.length > 0">
+      System is in a **safe state**. No deadlock detected, hence no wait-for graph indicating deadlock.
+    </p>
+    <p *ngIf="processes.length > 0 && safeSequence.length === 0 && waitForGraph.length === 0">
+      No explicit wait-for graph edges could be identified for the current unsafe state. This might indicate independent waiting or a more complex deadlock.
     </p>
   </div>
 
   <div class="output-section">
-    <h3>Wait-For Graph Output</h3>
-    <ul *ngIf="waitForGraph.length > 0">
-      <li *ngFor="let edge of waitForGraph">{{ edge }}</li>
-    </ul>
-    <p *ngIf="processes.length > 0 && safeSequence.length > 0">
-      System is in a safe state. No deadlock detected, hence no wait-for graph.
-    </p>
-    <p *ngIf="processes.length > 0 && safeSequence.length === 0 && waitForGraph.length === 0">
-        No wait-for graph edges could be identified for the current unsafe state. This might indicate independent waiting or a more complex deadlock.
-    </p>
-    <p *ngIf="processes.length === 0">
-      Add processes to generate the wait-for graph.
-    </p>
+      <h3>Overall Algorithm Flow Log</h3>
+      <div class="calculation-log-container">
+          <p *ngFor="let log of overallCalculations">{{ log }}</p>
+      </div>
   </div>
 </div>
