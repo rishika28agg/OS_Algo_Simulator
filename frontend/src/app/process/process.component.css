@@ -31,7 +31,7 @@ h1, h2, h3, h4 {
 }
 
 .form-section select {
-  width: auto; /* Adjust width dynamically */
+  width: auto;
   padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -49,15 +49,15 @@ h1, h2, h3, h4 {
 .input-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px; /* Spacing between input elements */
+  gap: 15px;
   margin-top: 10px;
   align-items: center;
 }
 
 .input-group input[type="text"],
 .input-group input[type="number"] {
-  flex: 1; /* Allow inputs to grow */
-  min-width: 120px; /* Minimum width for inputs */
+  flex: 1;
+  min-width: 120px;
   padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -94,12 +94,11 @@ button:disabled {
   transform: none;
 }
 
-/* Specific button styles */
 .simulate-btn {
-  display: inline-block; /* Changed to inline-block for side-by-side */
-  margin: 10px auto; /* Adjust margin */
+  display: inline-block;
+  margin: 10px auto;
   background-color: #27ae60;
-  margin-right: 10px; /* Space between simulate and clear */
+  margin-right: 10px;
 }
 
 .simulate-btn:hover {
@@ -114,7 +113,6 @@ button:disabled {
   background-color: #c0392b;
 }
 
-/* Process Table */
 .process-table table {
   width: 100%;
   border-collapse: collapse;
@@ -136,11 +134,10 @@ button:disabled {
   color: #2c3e50;
 }
 
-/* Results Section (common for metrics and logs) */
 .results-section {
   margin-top: 30px;
   padding: 25px;
-  background-color: #eaf7ff; /* Light blue background for results */
+  background-color: #eaf7ff;
   border: 1px solid #cceeff;
   border-radius: 10px;
 }
@@ -156,42 +153,41 @@ button:disabled {
   color: #0056b3;
 }
 
-/* Gantt Chart */
 .gantt-chart-container {
   margin-top: 20px;
   position: relative;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  padding-bottom: 40px; /* Space for time labels below the chart */
+  overflow-x: auto;
+  padding-bottom: 40px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  min-height: 100px; /* Ensure space even if no bars */
+  min-height: 100px;
   background-color: #fefefe;
   margin-bottom: 25px;
 }
 
 .time-axis-labels {
   position: absolute;
-  bottom: 0; /* Position at the bottom of the container */
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 20px; /* Height for the labels */
-  white-space: nowrap; /* Keep labels on one line */
+  height: 20px;
+  white-space: nowrap;
 }
 
 .time-point {
   position: absolute;
-  transform: translateX(-50%); /* Center the number on its tick */
+  transform: translateX(-50%);
   font-size: 0.8em;
   color: #666;
   text-align: center;
-  bottom: 0; /* Align to the very bottom of its parent */
-  width: 30px; /* Give it a fixed width for consistent spacing if percentage is small */
+  bottom: 0;
+  width: 30px;
 }
 
-.time-point::before { /* Vertical line for time axis */
+.time-point::before {
   content: '';
   position: absolute;
-  top: -60px; /* Extend above the labels into the chart area */
+  top: -60px;
   left: 50%;
   width: 1px;
   height: 60px;
@@ -201,15 +197,15 @@ button:disabled {
 
 .gantt-chart-bars {
   position: relative;
-  height: 50px; /* Height for the actual process bars */
-  min-width: 100%; /* Ensures it fills container and allows overflow */
-  border-bottom: 1px solid #bbb; /* Base line for the chart */
-  margin-top: 10px; /* Space between top of container and bars */
+  height: 50px;
+  min-width: 100%;
+  border-bottom: 1px solid #bbb;
+  margin-top: 10px;
 }
 
 .gantt-block {
   position: absolute;
-  top: 10px; /* Vertically center in the gantt-chart-bars */
+  top: 10px;
   height: 30px;
   line-height: 30px;
   text-align: center;
@@ -217,14 +213,14 @@ button:disabled {
   font-weight: bold;
   border-radius: 4px;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
-  opacity: 0; /* Start invisible for animation */
-  animation: fadeIn 0.5s forwards; /* Animation for appearance */
-  transition: width 0.5s ease-out, left 0.5s ease-out, background-color 0.3s ease, opacity 0.5s ease-out; /* Smooth transitions */
-  white-space: nowrap; /* Prevent text wrapping */
-  overflow: hidden; /* Hide overflow if text is too long */
-  text-overflow: ellipsis; /* Add ellipsis if text is cut off */
-  padding: 0 5px; /* Add some padding inside the bar */
-  box-sizing: border-box; /* Include padding in width calculation */
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+  transition: width 0.5s ease-out, left 0.5s ease-out, background-color 0.3s ease, opacity 0.5s ease-out;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+  box-sizing: border-box;
 }
 
 @keyframes fadeIn {
@@ -232,7 +228,6 @@ button:disabled {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Calculation Details */
 .calculation-details {
   margin-top: 20px;
   padding-top: 15px;
@@ -241,27 +236,79 @@ button:disabled {
 .calculation-details h3, .calculation-details h4 {
   color: #2c3e50;
   margin-bottom: 10px;
-  text-align: left; /* Align log headings to left */
+  text-align: left;
 }
 
 .calculation-log-container {
-  background-color: #f0f8ff; /* Lighter background for logs */
+  background-color: #f0f8ff;
   border: 1px solid #d0e8ff;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
-  max-height: 250px; /* Limit height */
-  overflow-y: auto; /* Add scroll if content overflows */
-  font-family: 'Consolas', 'Courier New', Courier, monospace; /* Monospace font for logs */
+  max-height: 250px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Courier New', Courier, monospace;
   font-size: 0.9em;
   line-height: 1.5;
   color: #333;
-  white-space: pre-wrap; /* Ensures long lines wrap */
-  word-wrap: break-word; /* Breaks long words if needed */
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .calculation-log-container p {
   margin: 3px 0;
   line-height: 1.4;
   color: #444;
+}
+
+/* --- NEW STYLES FROM HERE --- */
+
+.compare-btn {
+  background-color: #5d6d7e;
+  display: inline-block;
+  margin: 10px auto;
+}
+
+.compare-btn:hover {
+  background-color: #34495e;
+}
+
+.comparison-section {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+  text-align: center;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparison-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.comparison-table ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.comparison-table li {
+  padding: 4px 0;
 }

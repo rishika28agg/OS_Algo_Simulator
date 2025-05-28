@@ -50,6 +50,44 @@
   <button class="simulate-btn" (click)="runSimulation()" [disabled]="processList.length === 0 || animationPlaying">Run Simulation</button>
   <button class="simulate-btn clear-btn" (click)="clearAll()" [disabled]="animationPlaying">Clear All</button>
 
+  <button class="compare-btn" (click)="toggleComparisonTable()">
+    {{ showComparisonTable ? 'Hide Comparison' : 'Compare Algorithms' }}
+  </button>
+
+  <div *ngIf="showComparisonTable" class="comparison-section">
+    <h2>Algorithm Comparison</h2>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Pros</th>
+          <th>Cons</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let algo of algorithmDetails">
+          <td><strong>{{ algo.name }}</strong></td>
+          <td>{{ algo.type }}</td>
+          <td>{{ algo.description }}</td>
+          <td>
+            <ul>
+              <li *ngFor="let pro of algo.pros">{{ pro }}</li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li *ngFor="let con of algo.cons">{{ con }}</li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button (click)="toggleComparisonTable()" class="clear-btn" style="margin-top: 15px;">Close</button>
+  </div>
+
+
   <div *ngIf="animatedGanttChart.length > 0 || avgWT > 0 || avgTAT > 0" class="results-section">
     <h3>Gantt Chart Animation</h3>
     <div class="gantt-chart-container">

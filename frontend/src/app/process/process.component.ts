@@ -9,7 +9,15 @@ interface Process {
   priority: number;
   startTime?: number;
   endTime?: number;
-  remainingBurstTime?: number; // Added for RR to track remaining time
+  remainingBurstTime?: number;
+}
+
+interface AlgorithmDetail {
+  name: string;
+  type: string;
+  description: string;
+  pros: string[];
+  cons: string[];
 }
 
 @Component({
@@ -31,27 +39,81 @@ export class ProcessComponent {
   process: Process = { id: '', arrivalTime: 0, burstTime: 0, priority: 0 };
   processList: Process[] = [];
 
-  // Updated for animation and final display
   animatedGanttChart: { id: string, start: number, end: number }[] = [];
-  totalTime: number = 0; // Max time on the Gantt chart for scaling
-  animationPlaying: boolean = false; // Flag to disable buttons during animation
+  totalTime: number = 0;
+  animationPlaying: boolean = false;
 
   avgWT: number = 0;
   avgTAT: number = 0;
-  timeQuantum: number = 2; // For Round Robin
+  timeQuantum: number = 2;
 
-  // --- New properties for calculation logs ---
   waitingTimeCalculations: string[] = [];
   turnaroundTimeCalculations: string[] = [];
   overallCalculations: string[] = [];
-  // --- End new properties ---
+  
+  showComparisonTable: boolean = false;
+  algorithmDetails: AlgorithmDetail[] = [
+    {
+      name: 'First Come First Served (FCFS)',
+      type: 'Non-Preemptive',
+      description: 'Processes are executed in the order they arrive in the ready queue. It is the simplest scheduling algorithm.',
+      pros: [
+        'Simple to understand and implement.',
+        'Fair in the sense that processes are served in the order they arrive.'
+      ],
+      cons: [
+        'High average waiting time.',
+        'Susceptible to the "Convoy Effect", where a long process can make shorter processes wait for a long time.'
+      ]
+    },
+    {
+      name: 'Shortest Job First (SJF)',
+      type: 'Non-Preemptive (as implemented)',
+      description: 'The process with the smallest burst time is selected next. This implementation is non-preemptive.',
+      pros: [
+        'Provably optimal in minimizing the average waiting time for a given set of processes.'
+      ],
+      cons: [
+        'Requires knowing the burst time in advance, which is often not possible.',
+        'Can lead to starvation for processes with long burst times.'
+      ]
+    },
+    {
+      name: 'Priority Scheduling',
+      type: 'Non-Preemptive (as implemented)',
+      description: 'A priority is associated with each process, and the CPU is allocated to the process with the highest priority (lowest number).',
+      pros: [
+        'Allows for the execution of critical processes first.'
+      ],
+      cons: [
+        'Can lead to starvation of low-priority processes.',
+        'Can be complex to determine appropriate priority levels.'
+      ]
+    },
+    {
+      name: 'Round Robin (RR)',
+      type: 'Preemptive',
+      description: 'Each process is assigned a fixed time slice (time quantum). The CPU executes a process for that quantum, then moves it to the back of the queue.',
+      pros: [
+        'Fair, as every process gets an equal share of CPU time.',
+        'Prevents starvation, as no process waits for too long.'
+      ],
+      cons: [
+        'Performance depends heavily on the size of the time quantum.',
+        'High context switching overhead if the time quantum is too small.'
+      ]
+    }
+  ];
+
+  toggleComparisonTable() {
+    this.showComparisonTable = !this.showComparisonTable;
+  }
 
   addProcess() {
     if (this.animationPlaying) {
       alert('Cannot add processes while simulation is running.');
       return;
     }
-    // Input validation for process data
     if (!this.process.id.trim()) {
       alert('Process ID cannot be empty.');
       return;
@@ -68,17 +130,15 @@ export class ProcessComponent {
       alert('Burst Time must be a positive number.');
       return;
     }
-    // Priority is optional for some algos, but good to validate if provided
     if (this.selectedAlgorithm === 'Priority Scheduling' && (this.process.priority < 0 || isNaN(this.process.priority))) {
         alert('Priority must be a non-negative number for Priority Scheduling.');
         return;
     }
 
     this.processList.push({ ...this.process });
-    this.process = { id: '', arrivalTime: 0, burstTime: 0, priority: 0 }; // Reset for next input
+    this.process = { id: '', arrivalTime: 0, burstTime: 0, priority: 0 };
   }
 
-  // Clear all processes and simulation results
   clearAll() {
     if (this.animationPlaying) {
       alert('Cannot clear processes while simulation is running.');
@@ -91,7 +151,7 @@ export class ProcessComponent {
     this.waitingTimeCalculations = [];
     this.turnaroundTimeCalculations = [];
     this.overallCalculations = [];
-    this.totalTime = 0; // Reset total time
+    this.totalTime = 0;
   }
 
   async runSimulation() {
@@ -99,15 +159,14 @@ export class ProcessComponent {
       alert('Simulation is already running.');
       return;
     }
-    // Clear previous calculation logs and animation
     this.waitingTimeCalculations = [];
     this.turnaroundTimeCalculations = [];
     this.overallCalculations = [];
     this.animatedGanttChart = [];
-    this.totalTime = 0; // Reset total time at start of new simulation
+    this.totalTime = 0;
     this.avgWT = 0;
     this.avgTAT = 0;
-    this.animationPlaying = true; // Set flag to true
+    this.animationPlaying = true;
 
     if (this.processList.length === 0) {
       alert('Please add processes to run the simulation.');
@@ -127,7 +186,6 @@ export class ProcessComponent {
           await this.runPriorityAnimated();
           break;
         case 'Round Robin (RR)':
-          // Validate Time Quantum for RR
           if (this.timeQuantum <= 0 || isNaN(this.timeQuantum)) {
               alert('Time Quantum for Round Robin must be a positive number.');
               this.animationPlaying = false;
@@ -137,11 +195,10 @@ export class ProcessComponent {
           break;
       }
     } finally {
-      this.animationPlaying = false; // Ensure flag is reset even if an error occurs
+      this.animationPlaying = false;
     }
   }
 
-  // Helper for animation delay
   private async delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
@@ -153,15 +210,14 @@ export class ProcessComponent {
 
     this.overallCalculations.push("--- FCFS Calculation Steps ---");
 
-    for (const p of processes) { // Use for...of for async iteration
-      // If CPU is idle until process arrival
+    for (const p of processes) {
       if (currentTime < p.arrivalTime) {
         const idleStart = currentTime;
         const idleEnd = p.arrivalTime;
         this.overallCalculations.push(`CPU idle from ${idleStart} to ${idleEnd}.`);
-        this.animatedGanttChart.push({ id: 'Idle', start: idleStart, end: idleEnd }); // Add Idle segment
-        this.totalTime = Math.max(this.totalTime, idleEnd); // Update total time
-        await this.delay(500); // Short pause for idle
+        this.animatedGanttChart.push({ id: 'Idle', start: idleStart, end: idleEnd });
+        this.totalTime = Math.max(this.totalTime, idleEnd);
+        await this.delay(500);
         currentTime = p.arrivalTime;
       }
 
@@ -169,26 +225,28 @@ export class ProcessComponent {
       const end = currentTime + p.burstTime;
 
       this.animatedGanttChart.push({ id: p.id, start, end });
-      this.totalTime = Math.max(this.totalTime, end); // Update total time for chart scaling
+      this.totalTime = Math.max(this.totalTime, end);
 
       this.overallCalculations.push(`P(${p.id}) executes from ${start} to ${end}.`);
-      await this.delay(1000); // 1-second delay for each process execution
+      await this.delay(1000);
 
-      // Calculate Waiting Time (WT)
-      const wt = start - p.arrivalTime;
-      totalWT += wt;
-      this.waitingTimeCalculations.push(`WT(${p.id}) = Start Time (${start}) - Arrival Time (${p.arrivalTime}) = ${wt}`);
-
-      // Calculate Turnaround Time (TAT)
+      // --- MODIFIED CALCULATION LOGIC ---
+      // Calculate Turnaround Time (TAT) first
       const tat = end - p.arrivalTime;
       totalTAT += tat;
       this.turnaroundTimeCalculations.push(`TAT(${p.id}) = Completion Time (${end}) - Arrival Time (${p.arrivalTime}) = ${tat}`);
 
-      currentTime = end; // Update current time
+      // Then, calculate Waiting Time (WT) from TAT
+      const wt = tat - p.burstTime;
+      totalWT += wt;
+      this.waitingTimeCalculations.push(`WT(${p.id}) = Turnaround Time (${tat}) - Burst Time (${p.burstTime}) = ${wt}`);
+      // --- END OF MODIFICATION ---
+
+      currentTime = end;
     }
 
-    this.avgWT = totalWT / processes.length;
-    this.avgTAT = totalTAT / processes.length;
+    this.avgWT = processes.length > 0 ? totalWT / processes.length : 0;
+    this.avgTAT = processes.length > 0 ? totalTAT / processes.length : 0;
 
     this.overallCalculations.push(`\nTotal Waiting Time: ${totalWT}`);
     this.overallCalculations.push(`Average Waiting Time (Total WT / Num Processes): ${totalWT} / ${processes.length} = ${this.avgWT.toFixed(2)}`);
@@ -202,9 +260,7 @@ export class ProcessComponent {
     let currentTime = 0;
     let completedCount = 0;
     let totalWT = 0, totalTAT = 0;
-
     const completionTime: { [id: string]: number } = {};
-
     this.overallCalculations.push("--- SJF (Non-Preemptive) Calculation Steps ---");
 
     while (completedCount < n) {
@@ -220,46 +276,45 @@ export class ProcessComponent {
         });
         if (nextArrivalTime === Infinity) break;
         this.overallCalculations.push(`CPU idle from ${currentTime} to ${nextArrivalTime}.`);
-        this.animatedGanttChart.push({ id: 'Idle', start: currentTime, end: nextArrivalTime }); // Add Idle segment
+        this.animatedGanttChart.push({ id: 'Idle', start: currentTime, end: nextArrivalTime });
         this.totalTime = Math.max(this.totalTime, nextArrivalTime);
-        await this.delay(500); // Short pause for idle
+        await this.delay(500);
         currentTime = nextArrivalTime;
         continue;
       }
 
-      // Sort by burst time (shortest job first)
       arrivedAndNotCompleted.sort((a, b) => a.remainingBurstTime! - b.remainingBurstTime!);
-
       const currentProcess = arrivedAndNotCompleted[0];
 
       const start = currentTime;
       const end = start + currentProcess.remainingBurstTime!;
-      currentProcess.remainingBurstTime = 0; // Mark as finished
+      currentProcess.remainingBurstTime = 0;
 
       this.animatedGanttChart.push({ id: currentProcess.id, start, end });
       this.totalTime = Math.max(this.totalTime, end);
       this.overallCalculations.push(`P(${currentProcess.id}) executes from ${start} to ${end}.`);
-      await this.delay(1000); // 1-second delay
+      await this.delay(1000);
 
       completionTime[currentProcess.id] = end;
       currentTime = end;
       completedCount++;
     }
 
-    // Calculate WT and TAT for each process based on completion times
+    // --- MODIFIED CALCULATION LOGIC ---
     processes.forEach(p => {
       const tat = completionTime[p.id] - p.arrivalTime;
       const wt = tat - p.burstTime;
-
+      
       totalWT += wt;
       totalTAT += tat;
 
-      this.waitingTimeCalculations.push(`WT(${p.id}) = (Completion Time ${completionTime[p.id]}) - (Arrival Time ${p.arrivalTime}) - (Burst Time ${p.burstTime}) = ${wt}`);
-      this.turnaroundTimeCalculations.push(`TAT(${p.id}) = (Completion Time ${completionTime[p.id]}) - (Arrival Time ${p.arrivalTime}) = ${tat}`);
+      this.turnaroundTimeCalculations.push(`TAT(${p.id}) = Completion Time (${completionTime[p.id]}) - Arrival Time (${p.arrivalTime}) = ${tat}`);
+      this.waitingTimeCalculations.push(`WT(${p.id}) = Turnaround Time (${tat}) - Burst Time (${p.burstTime}) = ${wt}`);
     });
+    // --- END OF MODIFICATION ---
 
-    this.avgWT = totalWT / n;
-    this.avgTAT = totalTAT / n;
+    this.avgWT = n > 0 ? totalWT / n : 0;
+    this.avgTAT = n > 0 ? totalTAT / n : 0;
 
     this.overallCalculations.push(`\nTotal Waiting Time: ${totalWT}`);
     this.overallCalculations.push(`Average Waiting Time (Total WT / Num Processes): ${totalWT} / ${n} = ${this.avgWT.toFixed(2)}`);
@@ -273,7 +328,6 @@ export class ProcessComponent {
     let currentTime = 0;
     let completedCount = 0;
     let totalWT = 0, totalTAT = 0;
-
     const completionTime: { [id: string]: number } = {};
 
     this.overallCalculations.push("--- Priority (Non-Preemptive) Calculation Steps ---");
@@ -291,14 +345,13 @@ export class ProcessComponent {
         });
         if (nextArrivalTime === Infinity) break;
         this.overallCalculations.push(`CPU idle from ${currentTime} to ${nextArrivalTime}.`);
-        this.animatedGanttChart.push({ id: 'Idle', start: currentTime, end: nextArrivalTime }); // Add Idle segment
+        this.animatedGanttChart.push({ id: 'Idle', start: currentTime, end: nextArrivalTime });
         this.totalTime = Math.max(this.totalTime, nextArrivalTime);
-        await this.delay(500); // Short pause for idle
+        await this.delay(500);
         currentTime = nextArrivalTime;
         continue;
       }
 
-      // Sort by priority (lower number = higher priority), then by arrival time for tie-break
       arrivedAndNotCompleted.sort((a, b) => {
         if (a.priority !== b.priority) {
           return a.priority - b.priority;
@@ -307,22 +360,21 @@ export class ProcessComponent {
       });
 
       const currentProcess = arrivedAndNotCompleted[0];
-
       const start = currentTime;
       const end = start + currentProcess.remainingBurstTime!;
-      currentProcess.remainingBurstTime = 0; // Mark as finished
+      currentProcess.remainingBurstTime = 0;
 
       this.animatedGanttChart.push({ id: currentProcess.id, start, end });
       this.totalTime = Math.max(this.totalTime, end);
       this.overallCalculations.push(`P(${currentProcess.id}) executes from ${start} to ${end}.`);
-      await this.delay(1000); // 1-second delay
+      await this.delay(1000);
 
       completionTime[currentProcess.id] = end;
       currentTime = end;
       completedCount++;
     }
 
-    // Calculate WT and TAT for each process based on completion times
+    // --- MODIFIED CALCULATION LOGIC ---
     processes.forEach(p => {
       const tat = completionTime[p.id] - p.arrivalTime;
       const wt = tat - p.burstTime;
@@ -330,12 +382,13 @@ export class ProcessComponent {
       totalWT += wt;
       totalTAT += tat;
 
-      this.waitingTimeCalculations.push(`WT(${p.id}) = (Completion Time ${completionTime[p.id]}) - (Arrival Time ${p.arrivalTime}) - (Burst Time ${p.burstTime}) = ${wt}`);
-      this.turnaroundTimeCalculations.push(`TAT(${p.id}) = (Completion Time ${completionTime[p.id]}) - (Arrival Time ${p.arrivalTime}) = ${tat}`);
+      this.turnaroundTimeCalculations.push(`TAT(${p.id}) = Completion Time (${completionTime[p.id]}) - Arrival Time (${p.arrivalTime}) = ${tat}`);
+      this.waitingTimeCalculations.push(`WT(${p.id}) = Turnaround Time (${tat}) - Burst Time (${p.burstTime}) = ${wt}`);
     });
+    // --- END OF MODIFICATION ---
 
-    this.avgWT = totalWT / n;
-    this.avgTAT = totalTAT / n;
+    this.avgWT = n > 0 ? totalWT / n : 0;
+    this.avgTAT = n > 0 ? totalTAT / n : 0;
 
     this.overallCalculations.push(`\nTotal Waiting Time: ${totalWT}`);
     this.overallCalculations.push(`Average Waiting Time (Total WT / Num Processes): ${totalWT} / ${n} = ${this.avgWT.toFixed(2)}`);
@@ -346,10 +399,6 @@ export class ProcessComponent {
   private async runRRAnimated() {
     const processes = this.processList.map(p => ({ ...p, remainingBurstTime: p.burstTime }));
     const n = processes.length;
-
-    const originalBurstTimeMap: { [id: string]: number } = {};
-    processes.forEach(p => originalBurstTimeMap[p.id] = p.burstTime);
-
     const queue: Process[] = [];
     let currentTime = 0;
     let completedCount = 0;
@@ -361,35 +410,25 @@ export class ProcessComponent {
     const sortedArrivalProcesses = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
     let processIndex = 0;
 
-    // Add initial processes that arrive at time 0
-    while (processIndex < n && sortedArrivalProcesses[processIndex].arrivalTime <= currentTime) {
-      queue.push(sortedArrivalProcesses[processIndex]);
-      this.overallCalculations.push(`Time ${currentTime}: P(${sortedArrivalProcesses[processIndex].id}) arrived. Added to queue.`);
-      processIndex++;
-    }
-    // Small delay after initial queue setup
-    if (queue.length > 0) await this.delay(500);
-
-
     while (completedCount < n) {
+      while (processIndex < n && sortedArrivalProcesses[processIndex].arrivalTime <= currentTime) {
+        queue.push(sortedArrivalProcesses[processIndex]);
+        this.overallCalculations.push(`Time ${currentTime}: P(${sortedArrivalProcesses[processIndex].id}) arrived. Added to queue.`);
+        processIndex++;
+      }
+      
       if (queue.length === 0) {
-        let nextArrivalTime = Infinity;
-        for (let k = processIndex; k < n; k++) {
-          nextArrivalTime = Math.min(nextArrivalTime, sortedArrivalProcesses[k].arrivalTime);
-        }
-        if (nextArrivalTime === Infinity) break;
-        this.overallCalculations.push(`CPU idle from ${currentTime} to ${nextArrivalTime}.`);
-        this.animatedGanttChart.push({ id: 'Idle', start: currentTime, end: nextArrivalTime }); // Add Idle segment
-        this.totalTime = Math.max(this.totalTime, nextArrivalTime);
-        await this.delay(500); // Short pause for idle
-        currentTime = nextArrivalTime;
-
-        while (processIndex < n && sortedArrivalProcesses[processIndex].arrivalTime <= currentTime) {
-          queue.push(sortedArrivalProcesses[processIndex]);
-          this.overallCalculations.push(`Time ${currentTime}: P(${sortedArrivalProcesses[processIndex].id}) arrived. Added to queue.`);
-          processIndex++;
-        }
-        continue;
+          if (processIndex < n) {
+              const nextArrivalTime = sortedArrivalProcesses[processIndex].arrivalTime;
+              this.overallCalculations.push(`CPU idle from ${currentTime} to ${nextArrivalTime}.`);
+              this.animatedGanttChart.push({ id: 'Idle', start: currentTime, end: nextArrivalTime });
+              this.totalTime = Math.max(this.totalTime, nextArrivalTime);
+              await this.delay(500);
+              currentTime = nextArrivalTime;
+              continue;
+          } else {
+              break;
+          }
       }
 
       const current = queue.shift();
@@ -402,26 +441,16 @@ export class ProcessComponent {
       this.animatedGanttChart.push({ id: current.id, start, end });
       this.totalTime = Math.max(this.totalTime, end);
       this.overallCalculations.push(`P(${current.id}) executes from ${start} to ${end}. Remaining Burst: ${current.remainingBurstTime!} - ${timeSlice} = ${current.remainingBurstTime! - timeSlice}`);
-      await this.delay(1000); // 1-second delay for each slice
+      await this.delay(1000);
 
       currentTime = end;
       current.remainingBurstTime! -= timeSlice;
 
-      // Enqueue new arrivals during this time slice
-      // Important: Add processes that arrived *during* the execution of the current slice
-      // This loop is slightly tricky because processIndex might not cover all future arrivals
-      // A more robust way would be to re-check all non-completed processes for arrival
-      for (let k = 0; k < n; k++) { // Iterate through all original processes
-          const processToCheck = sortedArrivalProcesses[k];
-          // Check if it has arrived, is not yet completed, and is not already in the queue
-          if (processToCheck.arrivalTime <= currentTime && processToCheck.remainingBurstTime! > 0 && !queue.includes(processToCheck) && processToCheck.id !== current.id) {
-              queue.push(processToCheck);
-              this.overallCalculations.push(`Time ${currentTime}: P(${processToCheck.id}) arrived. Added to queue.`);
-              // No need to increment processIndex here as we are iterating all processes
-          }
+      while (processIndex < n && sortedArrivalProcesses[processIndex].arrivalTime <= currentTime) {
+        queue.push(sortedArrivalProcesses[processIndex]);
+        this.overallCalculations.push(`Time ${currentTime}: P(${sortedArrivalProcesses[processIndex].id}) arrived. Added to queue.`);
+        processIndex++;
       }
-      // Re-sort queue based on some criteria if necessary for RR (e.g., just FIFO)
-      // For standard RR, new arrivals go to the end of the queue.
 
       if (current.remainingBurstTime! > 0) {
         queue.push(current);
@@ -436,6 +465,7 @@ export class ProcessComponent {
     let totalWT = 0;
     let totalTAT = 0;
 
+    // --- MODIFIED CALCULATION LOGIC ---
     processes.forEach(p => {
       const originalP = this.processList.find(op => op.id === p.id);
       if (!originalP) return;
@@ -445,38 +475,45 @@ export class ProcessComponent {
 
       totalTAT += tat;
       totalWT += wt;
-
-      this.waitingTimeCalculations.push(`WT(${p.id}) = (Completion Time ${completionTime[p.id]}) - (Arrival Time ${originalP.arrivalTime}) - (Burst Time ${originalP.burstTime}) = ${wt}`);
-      this.turnaroundTimeCalculations.push(`TAT(${p.id}) = (Completion Time ${completionTime[p.id]}) - (Arrival Time ${originalP.arrivalTime}) = ${tat}`);
+      
+      this.turnaroundTimeCalculations.push(`TAT(${p.id}) = Completion Time (${completionTime[p.id]}) - Arrival Time (${originalP.arrivalTime}) = ${tat}`);
+      this.waitingTimeCalculations.push(`WT(${p.id}) = Turnaround Time (${tat}) - Burst Time (${originalP.burstTime}) = ${wt}`);
     });
+    // --- END OF MODIFICATION ---
 
-    this.avgWT = totalWT / n;
-    this.avgTAT = totalTAT / n;
+    this.avgWT = n > 0 ? totalWT / n : 0;
+    this.avgTAT = n > 0 ? totalTAT / n : 0;
 
     this.overallCalculations.push(`\nTotal Waiting Time: ${totalWT}`);
     this.overallCalculations.push(`Average Waiting Time (Total WT / Num Processes): ${totalWT} / ${n} = ${this.avgWT.toFixed(2)}`);
     this.overallCalculations.push(`\nTotal Turnaround Time: ${totalTAT}`);
     this.overallCalculations.push(`Average Turnaround Time (Total TAT / Num Processes): ${totalTAT} / ${n} = ${this.avgTAT.toFixed(2)}`);
   }
-
-  // Helper function for generating time markers for the Gantt chart axis
+  
   getTimeMarkers(): number[] {
-    const markers = [];
-    if (this.totalTime === 0) return [0]; // Handle empty chart
-    // Determine interval for markers based on total time to avoid clutter
+    const markers: number[] = [];
+    if (this.totalTime === 0) return [0]; 
+    
     let interval = 1;
     if (this.totalTime > 10) interval = 2;
     if (this.totalTime > 20) interval = 5;
     if (this.totalTime > 50) interval = 10;
     if (this.totalTime > 100) interval = 20;
 
-    for (let i = 0; i <= this.totalTime + interval; i += interval) {
-      markers.push(i);
+    for (let i = 0; i <= this.totalTime; i += interval) {
+        if (!markers.includes(i)) {
+          markers.push(i);
+        }
     }
-    return markers;
+    
+    const lastTime = Math.ceil(this.totalTime);
+    if (!markers.includes(lastTime)) {
+        markers.push(lastTime);
+    }
+
+    return markers.sort((a,b) => a - b);
   }
 
-  // Helper function to assign consistent colors to processes
   getProcessColor(id: string): string {
     const colors = [
       '#00BFFF', '#FFD700', '#FF4500', '#32CD32', '#9370DB',
@@ -484,9 +521,9 @@ export class ProcessComponent {
       '#F0E68C', '#8A2BE2', '#7FFF00', '#D2B48C', '#B0C4DE'
     ];
     if (id === 'Idle') {
-      return '#A9A9A9'; // DarkGray for idle time
+      return '#A9A9A9';
     }
-    // Simple hashing to get a somewhat consistent color based on ID
+    
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
       hash = id.charCodeAt(i) + ((hash << 5) - hash);
