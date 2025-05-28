@@ -30,12 +30,13 @@
           <th>Max Demand</th>
           <th>Allocated</th>
           <th>Need</th>
-          <th>Finished</th> </tr>
+          <th>Finished</th>
+        </tr>
       </thead>
       <tbody>
         <tr *ngFor="let process of processes; let i = index"
-            [class.highlighted-process]="process.id === highlightedProcessId"
-            [class.finished-process]="currentFinish[i]">
+          [class.highlighted-process]="process.id === highlightedProcessId"
+          [class.finished-process]="currentFinish[i]">
           <td>P{{ process.id }}</td>
           <td>{{ process.maxDemand.join(' ') }}</td>
           <td>{{ process.allocation.join(' ') }}</td>
@@ -52,8 +53,10 @@
     </ng-template>
   </div>
 
-  <button class="simulate-btn" (click)="runBankersAlgorithm()" [disabled]="processes.length === 0 || animationPlaying">Run Banker's Algorithm</button>
-  <button class="simulate-btn clear-btn" (click)="resetSimulationState(); processes = []; totalResources = []; totalInput = ''; available = []" [disabled]="animationPlaying">Clear All</button>
+  <div class="button-group"> <button class="simulate-btn" (click)="runBankersAlgorithm()" [disabled]="processes.length === 0 || animationPlaying">Run Banker's Algorithm</button>
+    <button class="simulate-btn clear-btn" (click)="resetSimulationState(); processes = []; totalResources = []; totalInput = ''; available = []" [disabled]="animationPlaying">Clear All</button>
+    <button class="about-btn" (click)="toggleAboutSection()">About Deadlock</button> </div>
+
 
   <div class="output-section" *ngIf="safeSequenceSteps.length > 0 || safeSequence.length > 0">
     <h3>Safe Sequence Animation Steps</h3>
@@ -61,7 +64,7 @@
       <div *ngFor="let step of safeSequenceSteps" class="safe-sequence-step">
         <span class="step-message">{{ step.message }}</span>
         <span class="step-work">Work: [{{ step.work.join(' ') }}]</span>
-        </div>
+      </div>
     </div>
 
     <p *ngIf="safeSequence.length > 0">
@@ -86,9 +89,31 @@
   </div>
 
   <div class="output-section">
-      <h3>Overall Algorithm Flow Log</h3>
-      <div class="calculation-log-container">
-          <p *ngFor="let log of overallCalculations">{{ log }}</p>
-      </div>
+    <h3>Overall Algorithm Flow Log</h3>
+    <div class="calculation-log-container">
+      <p *ngFor="let log of overallCalculations">{{ log }}</p>
+    </div>
+  </div>
+
+  <div class="about-section" *ngIf="showAboutSection">
+    <div class="about-content">
+      <button class="close-btn" (click)="toggleAboutSection()">X</button>
+      <h3>What is Deadlock?</h3>
+      <p>
+        A deadlock happens when processes get stuck because each is waiting for a resource held by another.
+      </p>
+      <h4>Conditions for Deadlock:</h4>
+      <ul>
+        <li *ngFor="let condition of deadlockConditions">{{ condition }}</li>
+      </ul>
+
+      <h3>What is a Wait-For Graph?</h3>
+      <p>{{ waitForGraphDefinition }}</p>
+      <ul>
+        <li>{{ waitForGraphNodes }}</li>
+        <li>{{ waitForGraphEdge }}</li>
+      </ul>
+      <p>{{ waitForGraphCycle }}</p>
+    </div>
   </div>
 </div>

@@ -30,7 +30,7 @@ export class DeadlockComponent {
   totalResources: number[] = [];
   available: number[] = []; // Stores the initial actual available resources
   processes: Process[] = [];
-  
+
   // Animation-related properties
   animationPlaying: boolean = false;
   safeSequence: number[] = []; // Final safe sequence
@@ -38,15 +38,32 @@ export class DeadlockComponent {
   highlightedProcessId: number | null = null; // Process ID currently being checked
   currentWork: number[] = []; // Current state of the 'Work' array during animation
   currentFinish: boolean[] = []; // Current state of the 'Finish' array during animation
-  
+
   waitForGraph: string[] = [];
   processCounter: number = 0; // Increments for unique PIDs
 
   // For calculation logs, similar to the CPU scheduler
   overallCalculations: string[] = [];
-  
+
   // Animation delay in milliseconds
-  animationDelayMs: number = 1000; 
+  animationDelayMs: number = 1000;
+
+  // --- New Property for About Section ---
+  showAboutSection: boolean = false;
+
+  // --- Simplified properties for About text content, no stars ---
+  deadlockConditions: string[] = [
+    "Mutual Exclusion: Only one process can use a resource at a time.",
+    "Hold and Wait: A process holds one resource and waits for another.",
+    "No Preemption: Resources can't be taken forcibly; they must be released voluntarily.",
+    "Circular Wait: Processes wait for each other in a circle, like P1 waits for P2, and P2 waits for P1.",
+  ];
+
+  waitForGraphDefinition: string = "A Wait-For Graph helps detect deadlocks. It shows which processes are waiting for which resources.";
+  waitForGraphNodes: string = "Nodes: These are the processes in the system.";
+  waitForGraphEdge: string = "Directed Edge Pi -> Pj: This means process Pi is waiting for a resource that process Pj holds.";
+  waitForGraphCycle: string = "If the Wait-For Graph has a cycle, it means there's a deadlock. Processes in the cycle are stuck waiting for each other.";
+
 
   constructor() { }
 
@@ -194,7 +211,7 @@ export class DeadlockComponent {
 
     this.overallCalculations.push("--- Banker's Algorithm Simulation Started ---");
     this.overallCalculations.push(`Initial Available: [${this.available.join(' ')}]`);
-    
+
     // Initialize animation state
     this.currentWork = [...work];
     this.currentFinish = [...finish];
@@ -222,7 +239,7 @@ export class DeadlockComponent {
           this.highlightedProcessId = process.id;
           const need = process.maxDemand.map((val, j) => val - process.allocation[j]);
 
-          this.overallCalculations.push(`  Checking P${process.id}: Need = [${need.join(' ')}] vs Work = [${work.join(' ')}]`);
+          this.overallCalculations.push(`   Checking P${process.id}: Need = [${need.join(' ')}] vs Work = [${work.join(' ')}]`);
           this.safeSequenceSteps.push({
             processId: process.id,
             work: [...work],
@@ -242,7 +259,7 @@ export class DeadlockComponent {
             sequence.push(process.id); // Add to the safe sequence
             changedThisIteration = true; // A process finished, so we might be able to finish more
 
-            this.overallCalculations.push(`  P${process.id} CAN be satisfied. Work becomes [${prevWork.join(' ')}] + Allocation P${process.id} ([${process.allocation.join(' ')}]) = [${work.join(' ')}]. P${process.id} added to sequence.`);
+            this.overallCalculations.push(`   P${process.id} CAN be satisfied. Work becomes [${prevWork.join(' ')}] + Allocation P${process.id} ([${process.allocation.join(' ')}]) = [${work.join(' ')}]. P${process.id} added to sequence.`);
             this.currentWork = [...work]; // Update live work display
             this.currentFinish = [...finish]; // Update live finish display
             this.safeSequenceSteps.push({
@@ -253,7 +270,7 @@ export class DeadlockComponent {
             });
             await this.delay(this.animationDelayMs * 1.5); // Slightly longer delay for completion
           } else {
-            this.overallCalculations.push(`  P${process.id} CANNOT be satisfied. Remaining in queue.`);
+            this.overallCalculations.push(`   P${process.id} CANNOT be satisfied. Remaining in queue.`);
             this.safeSequenceSteps.push({
               processId: process.id,
               work: [...work],
@@ -299,7 +316,7 @@ export class DeadlockComponent {
         this.overallCalculations.push("\nSystem is in a safe state. No wait-for graph (deadlock) found.");
         return;
     }
-    
+
     this.overallCalculations.push("\n--- Generating Wait-For Graph (for unsafe state) ---");
 
 
@@ -321,13 +338,13 @@ export class DeadlockComponent {
             }
             if (!canMeetNeed) {
                 waitingProcesses.push(process);
-                this.overallCalculations.push(`  P${process.id} is waiting as its Need [${need_i.join(' ')}] cannot be met by Available [${this.available.join(' ')}].`);
+                this.overallCalculations.push(`   P${process.id} is waiting as its Need [${need_i.join(' ')}] cannot be met by Available [${this.available.join(' ')}].`);
             }
         }
     }
 
     if (waitingProcesses.length === 0 && finishedProcessesIDs.size < n) {
-      this.overallCalculations.push("  No explicit waiting processes identified that cannot be satisfied by current available resources. This might indicate a more complex deadlock or that processes are waiting on each other's release.");
+      this.overallCalculations.push("   No explicit waiting processes identified that cannot be satisfied by current available resources. This might indicate a more complex deadlock or that processes are waiting on each other's release.");
     }
 
 
@@ -344,17 +361,17 @@ export class DeadlockComponent {
         for (let k = 0; k < m; k++) {
           if (need_i[k] > 0 && allocation_j[k] > 0) {
             // An edge Pi -> Pj exists if Pi needs resource k and Pj is holding resource k
-            const edge = `P${p_i.id} → P${p_j.id} (P${p_i.id} needs R${k+1} held by P${p_j.id})`;
+            const edge = `P${p_i.id} -> P${p_j.id} (P${p_i.id} needs R${k+1} held by P${p_j.id})`;
             if (!this.waitForGraph.includes(edge)) { // Prevent duplicate edges
                 this.waitForGraph.push(edge);
-                this.overallCalculations.push(`  Added edge: ${edge}`);
+                this.overallCalculations.push(`   Added edge: ${edge}`);
             }
           }
         }
       }
     }
     if (this.waitForGraph.length === 0 && finishedProcessesIDs.size < n) {
-      this.overallCalculations.push("  No explicit wait-for graph edges (Pj holding Pi's needed resource) found among waiting processes. This might imply a circular wait is not directly observable this way, or that other factors contribute to the unsafe state.");
+      this.overallCalculations.push("   No explicit wait-for graph edges (Pj holding Pi's needed resource) found among waiting processes. This might imply a circular wait is not directly observable this way, or that other factors contribute to the unsafe state.");
     }
   }
 
@@ -363,8 +380,13 @@ export class DeadlockComponent {
     return process.maxDemand.map((v, j) => Math.max(0, v - process.allocation[j])).join(' ');
   }
 
-  // Helper function to format the Safe Sequence string (e.g., "P1 → P2 → P0")
+  // Helper function to format the Safe Sequence string (e.g., "P1 -> P2 -> P0")
   getSafeSequenceString(): string {
-    return this.safeSequence.map(pid => 'P' + pid).join(' → ');
+    return this.safeSequence.map(pid => 'P' + pid).join(' -> ');
+  }
+
+  // --- New method to toggle the About section ---
+  toggleAboutSection() {
+    this.showAboutSection = !this.showAboutSection;
   }
 }
